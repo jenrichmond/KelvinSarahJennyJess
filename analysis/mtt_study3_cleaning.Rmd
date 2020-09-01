@@ -1,0 +1,188 @@
+---
+title: "MTT_study3_cleaning"
+author: "Jen Richmond"
+date: "27/08/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#load packages
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+library(tableone)
+```
+
+# read data
+
+The R compatible version of the raw data lives in the xls sheet called Detail_Analysis_R within the sheet called Study3_MTT_Clinical_group. Use readxl to read in just that sheet
+
+```{r}
+mtt <- readxl::read_excel(here("data", "Study 3_MTT_Clinical Group_ Data (65 or under).xlsx"), sheet = "Detail_Analysis_R") %>%
+  clean_names() 
+```
+
+
+# make it long
+
+```{r}
+# list variable names
+names(mtt)
+
+# make long to get columns for direction, valence, event etc 
+mtt_longest <- mtt %>%
+  pivot_longer(names_to = c("direction", "valence", "event", "measure"), values_to = "response", names_sep = "_", future_neutral_e1_code:future_neg_e2_proportion) %>%
+  mutate(id = row_number())
+
+# make wide to have dvs in different columns, will throw a warning about duplicates /list
+mtt_long <- mtt_longest %>%
+  pivot_wider(names_from = measure, values_from = response, id_cols = px_no:event) %>%
+  arrange(px_no, direction, valence, event)
+
+```
+
+# why are code:proportion lists?
+
+```{r}
+mtt_long_df <- as.data.frame(mtt_long)
+
+glimpse(mtt_long_df) # so weird that code:proportion are list type, ridiculous work around required because I don't really GET lists
+
+#pull code, internal, external, and proportion into values in the env
+
+codes <- unlist(mtt_long$code) # weird that this has 516 obs not 504
+internal <- unlist(mtt_long$internal)
+external <- unlist(mtt_long$external)
+proportion <- unlist(mtt_long$proportion)
+
+# use col bind to join them and then make into a data frame
+values <- cbind(codes, internal, external, proportion)
+values <- as.data.frame(values) 
+
+#drop the extra empty rows at the bottom to get 504 obs again
+
+mtt_values <- values[-c(505:516), ] 
+
+# select just the variable from the mtt_df
+mtt_variables <- mtt_long_df %>%
+  select(1:6)
+
+#join the mtt variables and values using cbind
+
+mtt_done <- cbind(mtt_variables, mtt_values)
+
+#did that fix the data type issue?
+
+glimpse(mtt_done)
+
+# YES
+```
+
+# check proportion calc
+
+The proportions were calculated in excel, lets just make sure they are correct by making a new variable called prop, and comparing it to the imported proportion variable
+
+```{r}
+mtt_check <- mtt_done %>%
+  mutate(prop = internal/(internal + external)) %>%
+  mutate(check = if_else(prop == proportion, TRUE, FALSE))
+
+```
+
+
+# remove incompletes_esl
+
+Put pp with incomplete data or esl in a separate dataframe in case we want to look at them later. 
+
+```{r}
+mtt_inc_esl <- mtt_done %>%
+  filter(identifier %in% c("Incomplete", "ESL"))
+
+```
+
+# make just complete df
+
+Create df with just data from pp with complete. 
+```{r}
+
+mtt_complete <- mtt_done %>%
+  filter(identifier == "Good")
+```
+
+# OVERGENERALITY
+
+Each participant was asked to talk about 2 events in each condition category 
+
+- past, neutral
+- past, negative
+- past, positive
+- future, neutral
+- future, negative
+- future, positive
+
+These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details. 
+
+
+What proportion of events were coded as specific for each participant
+
+```{r}
+
+# count() is nifty, equivalent to...
+### group_by(pp_no, codes) %>% summarise(count = n())
+
+category_events <- mtt_complete %>%
+  count(px_no, codes)  %>%
+  group_by(px_no) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prop_cat = n/total) %>%
+  group_by(codes) %>%
+  summarise(mean_prop = mean(prop_cat))
+```
+**why is there an NA category**
+
+## distribution of event type by group
+
+```{r}
+mtt_complete %>%
+  ggplot(aes(x = codes, fill = group)) +
+  geom_bar() +
+  facet_wrap(~group) +
+  labs(title = "distribution of event type by group", subtitle = "1 = general, 2 = categorical, 3 = specific") 
+```
+
+Most events are specific, but it looks like anx group has fewer events in general. 
+
+
+```{r}
+mtt_complete %>%
+  ggplot(aes(x = codes, fill = group)) +
+  geom_bar() +
+  facet_wrap(~px_no) +
+  labs(title = "distribution of event type by group", subtitle = "1 = general, 2 = categorical, 3 = specific")
+
+```
+
+```{r}
+mtt_complete %>%
+  filter(direction == "past") %>%
+  ggplot(aes(x = codes, fill = group)) +
+  geom_bar() +
+  facet_wrap(~px_no) +
+  labs(title = "PAST: distribution of event type by group", subtitle = "1 = general, 2 = categorical, 3 = specific")
+```
+
+```{r}
+mtt_complete %>%
+  filter(direction == "future") %>%
+  ggplot(aes(x = codes, fill = group)) +
+  geom_bar() +
+  facet_wrap(~px_no) +
+  labs(title = "FUTURE: distribution of event type by group", subtitle = "1 = general, 2 = categorical, 3 = specific")
+```
+
