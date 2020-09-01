@@ -7,4 +7,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+In this project, we test whether patients with anxiety exhibit impairments in mental time travel, that is, the ability to remember past events and imagine future events. 
