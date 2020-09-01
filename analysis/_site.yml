@@ -1,7 +1,7 @@
-name: MTT Anxiety
+name: MTTAnxiety
 output_dir: ../docs
 navbar:
-  title: MTT Anxiety
+  title: MTTAnxiety
   left:
   - text: Home
     href: index.html
@@ -12,7 +12,7 @@ navbar:
   right:
   - icon: fa-github
     text: Source code
-    href: https://github.com/jenrichmond/KelvinSarahJennyJess
+    href: https://github.com/jenrichmond/MTTanxiety
 output:
   workflowr::wflow_html:
     toc: yes
