@@ -1,7 +1,7 @@
-name: KelvinSarahJennyJess
+name: MTT Anxiety
 output_dir: ../docs
 navbar:
-  title: KelvinSarahJennyJess
+  title: MTT Anxiety
   left:
   - text: Home
     href: index.html
