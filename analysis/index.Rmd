@@ -11,3 +11,5 @@ editor_options:
 This site documents analysis for the MTT anxiety project. You can find links to individual .RMD files below. 
 
 1. [Data cleaning](mtt_study3_cleaning.html)
+
+2. [Plotting](mtt_study3_plotting.html)
