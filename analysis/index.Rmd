@@ -27,7 +27,8 @@ plots dummy scores
   + what do other papers do re analysing overgen scores, are they dealing with a larger range of possible scores?
   + alternative to RM ANOVA?
 
-2. Specificity plots (work in progress)
+2. [Specificity plots-work in progress](mtt_study3_plotting2.html)
+- just includes main effect group plot thus far, need to dig into direction/valence/group
 
 
 
