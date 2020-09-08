@@ -1,0 +1,75 @@
+---
+title: "plotting_specficity"
+author: "Jen Richmond"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load packages
+
+```{r loadpackages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(ggeasy)
+library(here)
+library(ggbeeswarm)
+```
+
+# read data
+
+```{r readdata}
+mtt_long <- read_csv(here("data", "study3_clean_mtt.csv"))
+```
+
+# SPECIFICITY
+
+Each participant was asked to talk about 2 events in each condition category
+
+- past, neutral
+- past, negative
+- past, positive
+- future, neutral
+- future, negative
+- future, positive
+
+These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details. 
+
+Filter out events that weren't coded as specific.
+
+```{r getspecifictyscores, message=FALSE, warning=FALSE}
+specificity <- mtt_long %>%
+  filter(code == 3)
+
+#fix order of group factor
+specificity$group <- fct_relevel(specificity$group, c("CON", "ANX"))
+                                                     
+```
+
+# Replicating plots from draft paper
+
+The original analysis looked at proportion internal by direction (past/future), valence (pos, neutral, neg), group (anx, con), finding only a main effect of group.  
+
+### 1. Main effect of group 
+
+```{r overgendirection, message=FALSE, warning=FALSE}
+specificity %>%
+  group_by(group) %>%
+  summarise(mean = mean(proportion, na.rm = TRUE), 
+            sd = sd(proportion, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  scale_fill_brewer(palette="Dark2") +
+  ylim(0,1) +
+  labs(title = "Proportion internal by group", subtitle = "averaged across valence and direction")
+```
+

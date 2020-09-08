@@ -1,7 +1,7 @@
 ---
 title: "plotting_overgenerality"
 author: "Jen Richmond"
-date: "sys.Date()"
+date: ""
 output: html_document
 ---
 
