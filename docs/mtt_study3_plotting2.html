@@ -13,7 +13,7 @@
 <meta name="author" content="Jen Richmond" />
 
 
-<title>plotting_overgenerality</title>
+<title>plotting_specficity</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -379,7 +379,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">plotting_overgenerality</h1>
+<h1 class="title toc-ignore">plotting_specficity</h1>
 <h4 class="author">Jen Richmond</h4>
 
 </div>
@@ -535,7 +535,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_plotting1.Rmd</code>) and HTML (<code>docs/mtt_study3_plotting1.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_plotting2.Rmd</code>) and HTML (<code>docs/mtt_study3_plotting2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -564,7 +564,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/b4910d2484967769de5dbf13b297e734f8857156/analysis/mtt_study3_plotting1.Rmd" target="_blank">b4910d2</a>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/b4910d2484967769de5dbf13b297e734f8857156/analysis/mtt_study3_plotting2.Rmd" target="_blank">b4910d2</a>
 </td>
 <td>
 Your Name
@@ -574,40 +574,6 @@ Your Name
 </td>
 <td>
 adding overgen and specificity plots
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/mtt_study3_plotting1.html" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/55c6f426c7c30dad77a9eb558ebad3922ebb18b3/analysis/mtt_study3_plotting1.Rmd" target="_blank">55c6f42</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-overgenerality plots done
 </td>
 </tr>
 </tbody>
@@ -642,8 +608,8 @@ cols(
   proportion = col_double()
 )</code></pre>
 </div>
-<div id="overgenerality" class="section level1">
-<h1>OVERGENERALITY</h1>
+<div id="specificity" class="section level1">
+<h1>SPECIFICITY</h1>
 <p>Each participant was asked to talk about 2 events in each condition category</p>
 <ul>
 <li>past, neutral</li>
@@ -654,348 +620,34 @@ cols(
 <li>future, positive</li>
 </ul>
 <p>These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details.</p>
-<p>The dummy coding involved adding these codes together for each condition combination resulting in a max score of 6 if participants came up with 2 x specific events, and a minimum score of 2 if they produced 2 x general events.</p>
-<pre class="r"><code>event_scores &lt;- mtt_long %&gt;%
-  group_by(group, direction, valence) %&gt;%  # for each combination of direction/valence
-  count(px_no, code)  
+<p>Filter out events that weren’t coded as specific.</p>
+<pre class="r"><code>specificity &lt;- mtt_long %&gt;%
+  filter(code == 3)
 
-# new column calc dummy score
-
-dummy_scores &lt;- event_scores %&gt;% 
-  mutate(dummy_score = code * n) 
-
-# for each pp, direction, valence, add the total dummy score together
-
-overgen &lt;- dummy_scores %&gt;%
-  group_by(px_no, group, direction, valence) %&gt;%
-  summarise(dummy_total = sum(dummy_score)) 
-
-# fix order of pos, neutral, neg factor
-overgen$valence &lt;- fct_relevel(overgen$valence, c(&quot;pos&quot;, &quot;neutral&quot;, &quot;neg&quot;))
-
-overgen$direction &lt;- fct_relevel(overgen$direction, c(&quot;past&quot;, &quot;future&quot;))</code></pre>
+#fix order of group factor
+specificity$group &lt;- fct_relevel(specificity$group, c(&quot;CON&quot;, &quot;ANX&quot;))</code></pre>
 </div>
 <div id="replicating-plots-from-draft-paper" class="section level1">
 <h1>Replicating plots from draft paper</h1>
-<p>The original analysis looked at dummy scores by direction (past/future), valence (pos, neutral, neg), group (anx, con). That analysis showed main effects of direction and valence but no main effect of group (or interaction involving group).</p>
-<div id="main-effect-of-direction" class="section level3">
-<h3>1. Main effect of direction</h3>
-<pre class="r"><code>overgen %&gt;%
-  group_by(direction) %&gt;%
-  summarise(mean = mean(dummy_total, na.rm = TRUE), 
-            sd = sd(dummy_total, na.rm = TRUE), 
+<p>The original analysis looked at proportion internal by direction (past/future), valence (pos, neutral, neg), group (anx, con), finding only a main effect of group.</p>
+<div id="main-effect-of-group" class="section level3">
+<h3>1. Main effect of group</h3>
+<pre class="r"><code>specificity %&gt;%
+  group_by(group) %&gt;%
+  summarise(mean = mean(proportion, na.rm = TRUE), 
+            sd = sd(proportion, na.rm = TRUE), 
             n = n(), 
             stderr = sd/sqrt(n)) %&gt;%
-  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  ggplot(aes(x = group, y = mean, fill = group)) +
   geom_col() +
   geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
                   size=.3,    # Thinner lines
                     width=.2,
                       position=position_dodge(.9)) +
   scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  labs(title = &quot;Overgen score by direction&quot;, subtitle = &quot;averaged across valence and group&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting1.Rmd/overgendirection-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overgendirection-1">
-Past versions of overgendirection-1.png
-</button>
-</p>
-<div id="fig-overgendirection-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/overgendirection-1.png" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div id="main-effect-of-valence" class="section level2">
-<h2>2. Main effect of valence</h2>
-<p>In the original plots, negative events had much lower scores, which probably was driving the main effect of valence.</p>
-<p>Need to work out why this effect is not replicated here…..</p>
-<pre class="r"><code>overgen %&gt;%
-  group_by(valence) %&gt;%
-  summarise(mean = mean(dummy_total, na.rm = TRUE), 
-            sd = sd(dummy_total, na.rm = TRUE), 
-            n = n(), 
-            stderr = sd/sqrt(n)) %&gt;%
-  ggplot(aes(x = valence, y = mean, fill = valence)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9)) +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  labs(title = &quot;Overgen score by valence&quot;, subtitle = &quot;averaged across direction and group&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting1.Rmd/overgenvalence-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overgenvalence-1">
-Past versions of overgenvalence-1.png
-</button>
-</p>
-<div id="fig-overgenvalence-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/overgenvalence-1.png" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div id="playing-with-by-group-plots" class="section level2">
-<h2>Playing with by group plots</h2>
-<pre class="r"><code>overgen_summary &lt;- overgen %&gt;%
-  group_by(valence, group, direction) %&gt;%
-  summarise(mean = mean(dummy_total, na.rm = TRUE), 
-            sd = sd(dummy_total, na.rm = TRUE), 
-            n = n(), 
-            stderr = sd/sqrt(n)) </code></pre>
-<div id="past-by-group-and-valence" class="section level4">
-<h4>PAST by group and valence</h4>
-<pre class="r"><code>overgen_summary %&gt;%
-  filter(direction == &quot;past&quot;) %&gt;%
-  ggplot(aes(x = valence, y = mean, fill = valence)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9)) +
-  facet_wrap(~ group) +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  labs(title = &quot;PAST overgenerality scores by group and valence&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting1.Rmd/pastbygroupvalence-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pastbygroupvalence-1">
-Past versions of pastbygroupvalence-1.png
-</button>
-</p>
-<div id="fig-pastbygroupvalence-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/pastbygroupvalence-1.png" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div id="future-by-group-and-valence" class="section level4">
-<h4>FUTURE by group and valence</h4>
-<pre class="r"><code>overgen_summary %&gt;%
-  filter(direction == &quot;future&quot;) %&gt;%
-  ggplot(aes(x = valence, y = mean, fill = valence)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9)) +
-  facet_wrap(~ group) +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  labs(title = &quot;FUTURE overgenerality scores by group and valence&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting1.Rmd/futurebygroupvalence-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-futurebygroupvalence-1">
-Past versions of futurebygroupvalence-1.png
-</button>
-</p>
-<div id="fig-futurebygroupvalence-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/futurebygroupvalence-1.png" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>The plots above of mean dummy scores by valence and group show that probably if we ran RM-ANOVA again on this data, we would not get effects of valence, maybe main effects of direction. HOWEVER…</p>
-<p>… the raw data plots below show that this data is not at all normally distributed. The vast majority of participants get scores of 5 or 6.</p>
-<p>Pretty sure that it is not valid to analyse this data with repeated measures ANOVA.</p>
-<pre class="r"><code>overgen %&gt;%
-  ggplot(aes(x = valence, y = dummy_total, colour = direction)) +
-  geom_quasirandom() +
-  facet_wrap(~group)</code></pre>
-<p><img src="figure/mtt_study3_plotting1.Rmd/pointviolin-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pointviolin-1">
-Past versions of pointviolin-1.png
-</button>
-</p>
-<div id="fig-pointviolin-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/pointviolin-1.png" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<pre class="r"><code>overgen %&gt;%
-  ggplot(aes(x = valence, y = dummy_total, fill = direction)) +
-  geom_violin() +
-  facet_wrap(~group)</code></pre>
-<p><img src="figure/mtt_study3_plotting1.Rmd/pointviolin-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pointviolin-2">
-Past versions of pointviolin-2.png
-</button>
-</p>
-<div id="fig-pointviolin-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/pointviolin-2.png" target="_blank">85e8dfa</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<div id="overgenerality-problems" class="section level2">
-<h2>Overgenerality problems</h2>
-<ol style="list-style-type: decimal">
-<li>need to check that I am using the same data that was in Sarah’s draft. The mean overgen scores for negative events are really different; effect of valence reported probably not there</li>
-<li>what to do about the distribution of overgen scores here. Not at all normally distributed, most participants have scores of 5 or 6. What analysis methods do other papers use? Are they dealing with a greater range of scores?</li>
-</ol>
+  ylim(0,1) +
+  labs(title = &quot;Proportion internal by group&quot;, subtitle = &quot;averaged across valence and direction&quot;)</code></pre>
+<p><img src="figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
