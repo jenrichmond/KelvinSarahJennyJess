@@ -10,6 +10,25 @@ editor_options:
 
 This site documents analysis for the MTT anxiety project. You can find links to individual .RMD files below. 
 
-1. [Data cleaning](mtt_study3_cleaning.html)
+# Data cleaning
 
-2. [Plotting](mtt_study3_plotting.html)
+1. [Get data in format for R](mtt_study3_cleaning.html)
+- This file reads the dummy and specificity data from excel, cleans it up, gets it into long format and exports to csv
+
+
+# Plotting
+
+1.  [Overgenerality plots](mtt_study3_plotting1.html)
+- This file tries to replicate the plots in the manuscript draft, i.e dummy scores by direction and valence. Noticing that we might not be plotting the same data- plot by valence looks like there is no effect (whereas in the original analysis there was). 
+- Also clear that the dummy scores are highly skewed; most participants have scores of 5 or 6 (out of 6). Not sure that repeated-measures ANOVA is a good option. 
+- TO DO....
+  + check to make sure we are dealing with the same data
+plots dummy scores 
+  + what do other papers do re analysing overgen scores, are they dealing with a larger range of possible scores?
+  + alternative to RM ANOVA?
+
+2. Specificity plots (work in progress)
+
+
+
+# Analysis

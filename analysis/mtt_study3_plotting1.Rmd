@@ -1,0 +1,180 @@
+---
+title: "plotting_overgenerality"
+author: "Jen Richmond"
+date: "sys.Date()"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load packages
+
+```{r loadpackages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(ggeasy)
+library(here)
+library(ggbeeswarm)
+```
+
+# read data
+
+```{r readdata}
+mtt_long <- read_csv(here("data", "study3_clean_mtt.csv"))
+```
+
+# OVERGENERALITY
+
+Each participant was asked to talk about 2 events in each condition category 
+
+- past, neutral
+- past, negative
+- past, positive
+- future, neutral
+- future, negative
+- future, positive
+
+These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details. 
+
+The dummy coding involved adding these codes together for each condition combination resulting in a max score of 6 if participants came up with 2 x specific events, and a minimum score of 2 if they produced 2 x general events. 
+
+
+```{r getdummyscores, message=FALSE, warning=FALSE}
+event_scores <- mtt_long %>%
+  group_by(group, direction, valence) %>%  # for each combination of direction/valence
+  count(px_no, code)  
+
+# new column calc dummy score
+
+dummy_scores <- event_scores %>% 
+  mutate(dummy_score = code * n) 
+
+# for each pp, direction, valence, add the total dummy score together
+
+overgen <- dummy_scores %>%
+  group_by(px_no, group, direction, valence) %>%
+  summarise(dummy_total = sum(dummy_score)) 
+
+# fix order of pos, neutral, neg factor
+overgen$valence <- fct_relevel(overgen$valence, c("pos", "neutral", "neg"))
+
+overgen$direction <- fct_relevel(overgen$direction, c("past", "future"))
+```
+
+# Replicating plots from draft paper
+
+The original analysis looked at dummy scores by direction (past/future), valence (pos, neutral, neg), group (anx, con). That analysis showed main effects of direction and valence but no main effect of group (or interaction involving group). 
+
+
+### 1. Main effect of direction 
+
+```{r overgendirection, message=FALSE, warning=FALSE}
+overgen %>%
+  group_by(direction) %>%
+  summarise(mean = mean(dummy_total, na.rm = TRUE), 
+            sd = sd(dummy_total, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Overgen score by direction", subtitle = "averaged across valence and group")
+```
+
+## 2. Main effect of valence
+
+In the original plots, negative events had much lower scores, which probably was driving the main effect of valence. 
+
+Need to work out why this effect is not  replicated here.....  
+```{r overgenvalence, message=FALSE, warning=FALSE}
+overgen %>%
+  group_by(valence) %>%
+  summarise(mean = mean(dummy_total, na.rm = TRUE), 
+            sd = sd(dummy_total, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Overgen score by valence", subtitle = "averaged across direction and group")
+```
+
+## Playing with by group plots
+
+```{r makesummarydf, message=FALSE, warning=FALSE}
+overgen_summary <- overgen %>%
+  group_by(valence, group, direction) %>%
+  summarise(mean = mean(dummy_total, na.rm = TRUE), 
+            sd = sd(dummy_total, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) 
+```
+
+
+#### PAST by group and valence 
+```{r pastbygroupvalence}
+overgen_summary %>%
+  filter(direction == "past") %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  facet_wrap(~ group) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "PAST overgenerality scores by group and valence")
+
+```
+
+#### FUTURE by group and valence 
+```{r futurebygroupvalence}
+
+overgen_summary %>%
+  filter(direction == "future") %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  facet_wrap(~ group) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "FUTURE overgenerality scores by group and valence")
+
+```
+
+The plots above of mean dummy scores by valence and group show that probably if we ran RM-ANOVA again on this data, we would not get effects of valence, maybe main effects of direction. HOWEVER...
+
+
+... the raw data plots below show that this data is not at all normally distributed. The vast majority of participants get scores of 5 or 6. 
+
+Pretty sure that it is not valid to analyse this data with repeated measures ANOVA. 
+
+```{r pointviolin, message=FALSE, warning=FALSE}
+overgen %>%
+  ggplot(aes(x = valence, y = dummy_total, colour = direction)) +
+  geom_quasirandom() +
+  facet_wrap(~group)
+
+overgen %>%
+  ggplot(aes(x = valence, y = dummy_total, fill = direction)) +
+  geom_violin() +
+  facet_wrap(~group)
+```
+
+## Overgenerality problems
+
+1. need to check that I am using the same data that was in Sarah's draft. The mean overgen scores for negative events are really different; effect of valence reported probably not there
+2. what to do about the distribution of overgen scores here. Not at all normally distributed, most participants have scores of 5 or 6. What analysis methods do other papers use? Are they dealing with a greater range of scores? 
+
