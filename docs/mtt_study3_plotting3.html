@@ -12,8 +12,9 @@
 
 <meta name="author" content="Jen Richmond" />
 
+<meta name="date" content="2020-09-09" />
 
-<title>plotting_specficity</title>
+<title>phenomological rating plots</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -379,8 +380,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">plotting_specficity</h1>
+<h1 class="title toc-ignore">phenomological rating plots</h1>
 <h4 class="author">Jen Richmond</h4>
+<h4 class="date">09/09/2020</h4>
 
 </div>
 
@@ -541,7 +543,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_plotting2.Rmd</code>) and HTML (<code>docs/mtt_study3_plotting2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_plotting3.Rmd</code>) and HTML (<code>docs/mtt_study3_plotting3.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -570,7 +572,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_plotting2.Rmd" target="_blank">27e2921</a>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_plotting3.Rmd" target="_blank">27e2921</a>
 </td>
 <td>
 Your Name
@@ -582,40 +584,6 @@ Your Name
 updating plots
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/4f73701809164b719f2a3b0a9a50f03bc04b007a/docs/mtt_study3_plotting2.html" target="_blank">4f73701</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/b4910d2484967769de5dbf13b297e734f8857156/analysis/mtt_study3_plotting2.Rmd" target="_blank">b4910d2</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-adding overgen and specificity plots
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -623,68 +591,107 @@ adding overgen and specificity plots
 </div>
 </div>
 </div>
-<div id="specificity" class="section level1">
-<h1>SPECIFICITY</h1>
-</div>
 <div id="load-packages" class="section level1">
 <h1>load packages</h1>
 <pre class="r"><code>library(tidyverse)
-library(janitor)
-library(ggeasy)
 library(here)
-library(ggbeeswarm)</code></pre>
+library(ggeasy)</code></pre>
 </div>
-<div id="read-data" class="section level1">
-<h1>read data</h1>
-<pre class="r"><code>mtt_long &lt;- read_csv(here(&quot;data&quot;, &quot;study3_clean_mtt.csv&quot;))</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  px_no = col_character(),
-  identifier = col_character(),
-  group = col_character(),
-  direction = col_character(),
-  valence = col_character(),
-  event = col_character(),
-  code = col_double(),
-  internal = col_double(),
-  external = col_double(),
-  proportion = col_double()
-)</code></pre>
-<p>Each participant was asked to talk about 2 events in each condition category</p>
-<ul>
-<li>past, neutral</li>
-<li>past, negative</li>
-<li>past, positive</li>
-<li>future, neutral</li>
-<li>future, negative</li>
-<li>future, positive</li>
-</ul>
-<p>These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details.</p>
-<p>Filter out events that weren’t coded as specific.</p>
-<pre class="r"><code>specificity &lt;- mtt_long %&gt;%
-  filter(code == 3) %&gt;%
-  mutate(valence = recode(valence, &quot;pos&quot; = &quot;positive&quot;,
-                          &quot;neutral&quot; = &quot;neutral&quot;,
-                          &quot;neg&quot; = &quot;negative&quot;,
-                        .default = &quot;NA&quot;)) %&gt;%
+<div id="read-in-data" class="section level1">
+<h1>read in data</h1>
+<pre class="r"><code>phenom &lt;- read_csv(here(&quot;data&quot;, &quot;study3_phenom.csv&quot;))</code></pre>
+<p>Filter only pp who are good, fix data types</p>
+<pre class="r"><code>phenom_complete &lt;- phenom %&gt;%
+  filter(identifier == &quot;Good&quot;)  %&gt;%
   arrange(px_no, valence, direction, event)
 
-#fix order of group factor
-specificity$group &lt;- fct_relevel(specificity$group, c(&quot;CON&quot;, &quot;ANX&quot;))
 
-specificity$valence &lt;- fct_relevel(specificity$valence, c(&quot;positive&quot;, &quot;neutral&quot;, &quot;negative&quot;))
+phenom_complete &lt;- phenom_complete %&gt;%
+  mutate_if(is.character, as.factor)
 
-specificity$direction &lt;- fct_relevel(specificity$direction, c(&quot;past&quot;, &quot;future&quot;))</code></pre>
+phenom_complete$valence &lt;- fct_relevel(phenom_complete$valence, 
+                    c(&quot;positive&quot;, &quot;neutral&quot;, &quot;negative&quot;))
+
+phenom_complete$group &lt;- fct_relevel(phenom_complete$group, 
+                                       c(&quot;CON&quot;, &quot;ANX&quot;))
+
+phenom_complete$direction &lt;- fct_relevel(phenom_complete$direction, 
+                                       c(&quot;past&quot;, &quot;future&quot;))</code></pre>
 </div>
-<div id="replicating-plots-from-draft-paper" class="section level1">
-<h1>Replicating plots from draft paper</h1>
-<p>The original analysis looked at proportion internal by direction (past/future), valence (pos, neutral, neg), group (anx, con), finding only a main effect of group.</p>
-<div id="main-effect-of-group" class="section level3">
-<h3>Main effect of group</h3>
-<pre class="r"><code>specificity %&gt;%
+<div id="plots" class="section level1">
+<h1>Plots</h1>
+<p>Just a few pertinent ones…</p>
+</div>
+<div id="vividness" class="section level1">
+<h1>VIVIDNESS</h1>
+<pre class="r"><code>phenom_complete %&gt;%
+  filter(rating == &quot;vivid&quot;) %&gt;%
+  group_by(group, direction, valence) %&gt;%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %&gt;%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette=&quot;Dark2&quot;) +
+  labs(title = &quot;Rated vividness&quot;)</code></pre>
+<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
+<p><img src="figure/mtt_study3_plotting3.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="intensity" class="section level1">
+<h1>INTENSITY</h1>
+<pre class="r"><code>phenom_complete %&gt;%
+  filter(rating == &quot;intensity&quot;) %&gt;%
+  group_by(group, direction, valence) %&gt;%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %&gt;%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+ facet_grid(vars(group), vars(direction)) +
+  scale_fill_brewer(palette=&quot;Dark2&quot;) +
+  labs(title = &quot;Rated intensity&quot;)</code></pre>
+<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
+<p><img src="figure/mtt_study3_plotting3.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="coherence" class="section level1">
+<h1>COHERENCE</h1>
+<pre class="r"><code>phenom_complete %&gt;%
+  filter(rating == &quot;coh&quot;) %&gt;%
+  group_by(group, direction, valence) %&gt;%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %&gt;%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette=&quot;Dark2&quot;) +
+  labs(title = &quot;Rated coherence&quot;)</code></pre>
+<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
+<p><img src="figure/mtt_study3_plotting3.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>phenom_complete %&gt;%
+  filter(rating == &quot;coh&quot;) %&gt;%
   group_by(group) %&gt;%
-  summarise(mean = mean(proportion, na.rm = TRUE), 
-            sd = sd(proportion, na.rm = TRUE), 
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
             n = n(), 
             stderr = sd/sqrt(n)) %&gt;%
   ggplot(aes(x = group, y = mean, fill = group)) +
@@ -693,69 +700,52 @@ specificity$direction &lt;- fct_relevel(specificity$direction, c(&quot;past&quot
                   size=.3,    # Thinner lines
                     width=.2,
                       position=position_dodge(.9)) +
+  ylim(0, 7) +
   scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  ylim(0,1) +
-  labs(title = &quot;Proportion internal by group&quot;, subtitle = &quot;averaged across valence and direction&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overgendirection-1">
-Past versions of overgendirection-1.png
-</button>
-</p>
-<div id="fig-overgendirection-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/4f73701809164b719f2a3b0a9a50f03bc04b007a/docs/figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" target="_blank">4f73701</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
+  labs(title = &quot;Rated coherence&quot;, subtitle = &quot;people with anxiety rate events as more (not less) coherent&quot;)</code></pre>
+<pre><code>`summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<p><img src="figure/mtt_study3_plotting3.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-</div>
-</div>
-</div>
-<div id="playing-with-effect-of-groupvalence-by-group" class="section level1">
-<h1>Playing with effect of group/valence by group</h1>
-<pre class="r"><code>spec_summary &lt;- specificity %&gt;%
+<div id="importance" class="section level1">
+<h1>IMPORTANCE</h1>
+<pre class="r"><code>phenom_complete %&gt;%
+  filter(rating == &quot;impt&quot;) %&gt;%
   group_by(group, direction, valence) %&gt;%
-  summarise(mean = mean(proportion, na.rm = TRUE), 
-            sd = sd(proportion, na.rm = TRUE), 
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
             n = n(), 
-            stderr = sd/sqrt(n))</code></pre>
-<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
-<pre class="r"><code>spec_summary %&gt;%
+            stderr = sd/sqrt(n)) %&gt;%
   ggplot(aes(x = valence, y = mean, fill = valence)) +
   geom_col() +
   geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
                   size=.3,    # Thinner lines
                     width=.2,
-                      position=position_dodge(.9))  +
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 6) +
   scale_fill_brewer(palette=&quot;Dark2&quot;) +
- facet_grid(vars(group), vars(direction))</code></pre>
-<p><img src="figure/mtt_study3_plotting2.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Is there anything going on here? Maybe a tiny bit more variability across valence in the anx group relative to controls…</p>
+  labs(title = &quot;Rated importance&quot;)</code></pre>
+<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
+<p><img src="figure/mtt_study3_plotting3.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>group x direction interaction</p>
+<pre class="r"><code>phenom_complete %&gt;%
+  filter(rating == &quot;impt&quot;) %&gt;%
+  group_by(group, direction) %&gt;%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %&gt;%
+  ggplot(aes(x = group, y = mean, fill = direction)) +
+  geom_col(position = &quot;dodge&quot;) +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0,6) +
+  scale_fill_brewer(palette=&quot;Dark2&quot;) +
+  labs(title = &quot;Rated importance&quot;, subtitle = &quot;people with anxiety rate future events as more important&quot;)</code></pre>
+<pre><code>`summarise()` regrouping output by &#39;group&#39; (override with `.groups` argument)</code></pre>
+<p><img src="figure/mtt_study3_plotting3.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -779,33 +769,31 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] ggbeeswarm_0.6.0 here_0.1         ggeasy_0.1.2     janitor_1.2.0   
- [5] forcats_0.5.0    stringr_1.4.0    dplyr_1.0.1      purrr_0.3.3     
- [9] readr_1.3.1      tidyr_1.1.0      tibble_3.0.3     ggplot2_3.3.2   
-[13] tidyverse_1.3.0  workflowr_1.6.2 
+ [1] ggeasy_0.1.2    here_0.1        forcats_0.5.0   stringr_1.4.0  
+ [5] dplyr_1.0.1     purrr_0.3.3     readr_1.3.1     tidyr_1.1.0    
+ [9] tibble_3.0.3    ggplot2_3.3.2   tidyverse_1.3.0 workflowr_1.6.2
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.5             lubridate_1.7.4        assertthat_0.2.1      
- [4] rprojroot_1.3-2        digest_0.6.25          R6_2.4.1              
- [7] cellranger_1.1.0       backports_1.1.8        reprex_0.3.0          
-[10] evaluate_0.14          httr_1.4.1             pillar_1.4.6          
-[13] rlang_0.4.7            readxl_1.3.1           rstudioapi_0.11.0-9000
-[16] whisker_0.4            blob_1.2.1             rmarkdown_1.15        
-[19] labeling_0.3           munsell_0.5.0          broom_0.7.0           
-[22] compiler_3.5.1         httpuv_1.5.2           vipor_0.4.5           
-[25] modelr_0.1.8           xfun_0.8               pkgconfig_2.0.3       
-[28] htmltools_0.5.0        tidyselect_1.1.0       fansi_0.4.1           
-[31] crayon_1.3.4           dbplyr_1.4.4           withr_2.2.0           
-[34] later_1.1.0.1          grid_3.5.1             jsonlite_1.7.0        
-[37] gtable_0.3.0           lifecycle_0.2.0        DBI_1.0.0             
-[40] git2r_0.27.1           magrittr_1.5           scales_1.1.1          
-[43] cli_2.0.2              stringi_1.4.6          farver_2.0.3          
-[46] fs_1.4.1               promises_1.1.1         xml2_1.3.2            
-[49] ellipsis_0.3.1         generics_0.0.2         vctrs_0.3.2           
-[52] RColorBrewer_1.1-2     tools_3.5.1            glue_1.4.1            
-[55] beeswarm_0.2.3         hms_0.5.3              yaml_2.2.1            
-[58] colorspace_1.4-1       rvest_0.3.6            knitr_1.23            
-[61] haven_2.3.1           </code></pre>
+ [1] tidyselect_1.1.0       xfun_0.8               haven_2.3.1           
+ [4] colorspace_1.4-1       vctrs_0.3.2            generics_0.0.2        
+ [7] htmltools_0.5.0        yaml_2.2.1             blob_1.2.1            
+[10] rlang_0.4.7            later_1.1.0.1          pillar_1.4.6          
+[13] withr_2.2.0            glue_1.4.1             DBI_1.0.0             
+[16] RColorBrewer_1.1-2     dbplyr_1.4.4           modelr_0.1.8          
+[19] readxl_1.3.1           lifecycle_0.2.0        munsell_0.5.0         
+[22] gtable_0.3.0           cellranger_1.1.0       rvest_0.3.6           
+[25] evaluate_0.14          labeling_0.3           knitr_1.23            
+[28] httpuv_1.5.2           fansi_0.4.1            broom_0.7.0           
+[31] Rcpp_1.0.5             promises_1.1.1         backports_1.1.8       
+[34] scales_1.1.1           jsonlite_1.7.0         farver_2.0.3          
+[37] fs_1.4.1               hms_0.5.3              digest_0.6.25         
+[40] stringi_1.4.6          rprojroot_1.3-2        grid_3.5.1            
+[43] cli_2.0.2              tools_3.5.1            magrittr_1.5          
+[46] crayon_1.3.4           whisker_0.4            pkgconfig_2.0.3       
+[49] ellipsis_0.3.1         xml2_1.3.2             reprex_0.3.0          
+[52] lubridate_1.7.4        rstudioapi_0.11.0-9000 assertthat_0.2.1      
+[55] rmarkdown_1.15         httr_1.4.1             R6_2.4.1              
+[58] git2r_0.27.1           compiler_3.5.1        </code></pre>
 </div>
 </div>
 

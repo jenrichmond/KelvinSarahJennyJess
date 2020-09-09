@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree90542cb157c5979b8958fb6fc90d0746de35e19btargetblank90542cba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/90542cb157c5979b8958fb6fc90d0746de35e19b" target="_blank">90542cb</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree27e2921af7d5161c5b87f22f4da3cc661b17f51ctargetblank27e2921a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/27e2921af7d5161c5b87f22f4da3cc661b17f51c" target="_blank">27e2921</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree90542cb157c5979b8958fb6fc90d0746de35e19btargetblank90542cba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree27e2921af7d5161c5b87f22f4da3cc661b17f51ctargetblank27e2921a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/90542cb157c5979b8958fb6fc90d0746de35e19b" target="_blank">90542cb</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/27e2921af7d5161c5b87f22f4da3cc661b17f51c" target="_blank">27e2921</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -518,9 +518,15 @@ Ignored files:
     Ignored:    OLDAnalysis/
     Ignored:    Prism & Graphs/
 
+Untracked files:
+    Untracked:  analysis/data
+    Untracked:  analysis/functions.R
+    Untracked:  data/study3_event_text.csv
+    Untracked:  data/study3_phenom.csv
+
 Unstaged changes:
+    Deleted:    analysis/mtt_study3_cleaning.Rmd
     Modified:   data/Study 3_MTT_Clinical Group_ Data (65 or under).xlsx
-    Deleted:    data/~$Study 3_MTT_Clinical Group_ Data (65 or under).xlsx
 
 </code></pre>
 <p>
@@ -559,6 +565,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_plotting1.Rmd" target="_blank">27e2921</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+updating plots
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/ca45bef6e72083dbadacde3edc152f062186c44c/docs/mtt_study3_plotting1.html" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -685,6 +725,9 @@ overgenerality plots done
 </div>
 </div>
 </div>
+<div id="overgenerality" class="section level1">
+<h1>OVERGENERALITY</h1>
+</div>
 <div id="load-packages" class="section level1">
 <h1>load packages</h1>
 <pre class="r"><code>library(tidyverse)
@@ -710,9 +753,6 @@ cols(
   external = col_double(),
   proportion = col_double()
 )</code></pre>
-</div>
-<div id="overgenerality" class="section level1">
-<h1>OVERGENERALITY</h1>
 <p>Each participant was asked to talk about 2 events in each condition category</p>
 <ul>
 <li>past, neutral</li>
@@ -852,6 +892,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/ca45bef6e72083dbadacde3edc152f062186c44c/docs/figure/mtt_study3_plotting1.Rmd/overgenvalence-1.png" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/405027685bc7ab4955fcc412327f361beb4ab7f0/docs/figure/mtt_study3_plotting1.Rmd/overgenvalence-1.png" target="_blank">4050276</a>
 </td>
 <td>
@@ -923,6 +974,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/ca45bef6e72083dbadacde3edc152f062186c44c/docs/figure/mtt_study3_plotting1.Rmd/pastbygroupvalence-1.png" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/pastbygroupvalence-1.png" target="_blank">85e8dfa</a>
 </td>
 <td>
@@ -975,6 +1037,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/ca45bef6e72083dbadacde3edc152f062186c44c/docs/figure/mtt_study3_plotting1.Rmd/futurebygroupvalence-1.png" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/futurebygroupvalence-1.png" target="_blank">85e8dfa</a>
 </td>
 <td>
@@ -1020,6 +1093,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/ca45bef6e72083dbadacde3edc152f062186c44c/docs/figure/mtt_study3_plotting1.Rmd/pointviolin-1.png" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/pointviolin-1.png" target="_blank">85e8dfa</a>
 </td>
 <td>
@@ -1060,6 +1144,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/ca45bef6e72083dbadacde3edc152f062186c44c/docs/figure/mtt_study3_plotting1.Rmd/pointviolin-2.png" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/pointviolin-2.png" target="_blank">85e8dfa</a>
@@ -1211,6 +1306,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/ca45bef6e72083dbadacde3edc152f062186c44c/docs/figure/mtt_study3_plotting1.Rmd/unnamed-chunk-6-1.png" target="_blank">ca45bef</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/405027685bc7ab4955fcc412327f361beb4ab7f0/docs/figure/mtt_study3_plotting1.Rmd/unnamed-chunk-6-1.png" target="_blank">4050276</a>

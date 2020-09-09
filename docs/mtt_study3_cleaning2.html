@@ -13,7 +13,7 @@
 <meta name="author" content="Jen Richmond" />
 
 
-<title>plotting_specficity</title>
+<title>MTT_study3_cleaning2</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -379,7 +379,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">plotting_specficity</h1>
+<h1 class="title toc-ignore">MTT_study3_cleaning2</h1>
 <h4 class="author">Jen Richmond</h4>
 
 </div>
@@ -541,7 +541,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_plotting2.Rmd</code>) and HTML (<code>docs/mtt_study3_plotting2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_cleaning2.Rmd</code>) and HTML (<code>docs/mtt_study3_cleaning2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -570,7 +570,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_plotting2.Rmd" target="_blank">27e2921</a>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_cleaning2.Rmd" target="_blank">27e2921</a>
 </td>
 <td>
 Your Name
@@ -582,40 +582,6 @@ Your Name
 updating plots
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/4f73701809164b719f2a3b0a9a50f03bc04b007a/docs/mtt_study3_plotting2.html" target="_blank">4f73701</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/b4910d2484967769de5dbf13b297e734f8857156/analysis/mtt_study3_plotting2.Rmd" target="_blank">b4910d2</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-adding overgen and specificity plots
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -623,139 +589,232 @@ adding overgen and specificity plots
 </div>
 </div>
 </div>
-<div id="specificity" class="section level1">
-<h1>SPECIFICITY</h1>
-</div>
+<p>This Rmd file reads in, cleans up and write to csv phenomenological data for the MTT project.</p>
 <div id="load-packages" class="section level1">
 <h1>load packages</h1>
-<pre class="r"><code>library(tidyverse)
-library(janitor)
-library(ggeasy)
-library(here)
+<pre class="r"><code>library(tidyverse) # data wrangling/visualisation
+library(here) # for avoiding filepath drama
+library(readxl) # for reading excel sheets
+library(janitor) # for cleaning functions
+library(naniar) # visualising missing data
+library(wesanderson) #colour palettes
 library(ggbeeswarm)</code></pre>
 </div>
 <div id="read-data" class="section level1">
 <h1>read data</h1>
-<pre class="r"><code>mtt_long &lt;- read_csv(here(&quot;data&quot;, &quot;study3_clean_mtt.csv&quot;))</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  px_no = col_character(),
-  identifier = col_character(),
-  group = col_character(),
-  direction = col_character(),
-  valence = col_character(),
-  event = col_character(),
-  code = col_double(),
-  internal = col_double(),
-  external = col_double(),
-  proportion = col_double()
-)</code></pre>
-<p>Each participant was asked to talk about 2 events in each condition category</p>
-<ul>
-<li>past, neutral</li>
-<li>past, negative</li>
-<li>past, positive</li>
-<li>future, neutral</li>
-<li>future, negative</li>
-<li>future, positive</li>
-</ul>
-<p>These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details.</p>
-<p>Filter out events that weren’t coded as specific.</p>
-<pre class="r"><code>specificity &lt;- mtt_long %&gt;%
-  filter(code == 3) %&gt;%
-  mutate(valence = recode(valence, &quot;pos&quot; = &quot;positive&quot;,
-                          &quot;neutral&quot; = &quot;neutral&quot;,
-                          &quot;neg&quot; = &quot;negative&quot;,
-                        .default = &quot;NA&quot;)) %&gt;%
-  arrange(px_no, valence, direction, event)
+<p>The R compatible version of the raw phenomological data lives in the xls sheet called all_clinical_data_Phenon_R within the sheet called Study3_MTT_Clinical_group. Use readxl to read in just that sheet</p>
+<pre class="r"><code>phenom &lt;- readxl::read_excel(here(&quot;data&quot;, &quot;Study 3_MTT_Clinical Group_ Data (65 or under).xlsx&quot;), sheet = &quot;all_clinical_data_Phenom_R&quot;) %&gt;%
+  clean_names() </code></pre>
+<pre><code>New names:
+* PAST_NEUTRAL -&gt; PAST_NEUTRAL...6
+* VIVID -&gt; VIVID...7
+* `PRE/RE` -&gt; `PRE/RE...8`
+* SENSE -&gt; SENSE...9
+* SENSE -&gt; SENSE...10
+* ...</code></pre>
+</div>
+<div id="renaming" class="section level1">
+<h1>renaming</h1>
+<p>This is stupidly long code that renames all 185 variables to make the naming conventions consistent so that it will work with pivot_longer.</p>
+<pre class="r"><code>phenom_renamed &lt;- phenom %&gt;%
+  rename(past_neutral_e1_text = past_neutral_6, 
+         past_neutral_e1_vivid = vivid_7, 
+         past_neutral_e1_prere = pre_re_8, 
+         past_neutral_e1_sense1 = sense_9, 
+         past_neutral_e1_sense2 = sense_10, 
+         past_neutral_e1_context1 = context_11, 
+         past_neutral_e1_context2 = context_12, 
+         past_neutral_e1_perspective1 = perspective_13, 
+         past_neutral_e1_perspective2 = perspective_14, 
+         past_neutral_e1_ratio = ratio_15, 
+         past_neutral_e1_intensity = intensity_16, 
+         past_neutral_e1_reaction = reaction_17, 
+         past_neutral_e1_impt = importance_18,
+         past_neutral_e1_coh = coherence_19, 
+         past_neutral_e1_temp = temporal_20, 
+         past_neutral_e2_text = past_neutral_21, 
+         past_neutral_e2_vivid = vivid_22, 
+         past_neutral_e2_prere = pre_re_23, 
+         past_neutral_e2_sense1 = sense_24, 
+         past_neutral_e2_sense2 = sense_25, 
+         past_neutral_e2_context1 = context_26, 
+         past_neutral_e2_context2 = context_27, 
+         past_neutral_e2_perspective1 = perspective_28, 
+         past_neutral_e2_perspective2 = perspective_29, 
+         past_neutral_e2_ratio = ratio_30, 
+         past_neutral_e2_intensity = intensity_31, 
+         past_neutral_e2_reaction = reaction_32, 
+         past_neutral_e2_impt = importance_33,
+         past_neutral_e2_coh = coherence_34, 
+         past_neutral_e2_temp = temporal_35,
+        past_negative_e1_text = past_negative_36, 
+         past_negative_e1_vivid = vivid_37, 
+         past_negative_e1_prere = pre_re_38, 
+         past_negative_e1_sense1 = sense_39, 
+         past_negative_e1_sense2 = sense_40, 
+         past_negative_e1_context1 = context_41, 
+         past_negative_e1_context2 = context_42, 
+         past_negative_e1_perspective1 = perspective_43, 
+         past_negative_e1_perspective2 = perspective_44, 
+         past_negative_e1_ratio = ratio_45, 
+         past_negative_e1_intensity = intensity_46, 
+         past_negative_e1_reaction = reaction_47, 
+         past_negative_e1_impt = importance_48,
+         past_negative_e1_coh = coherence_49, 
+         past_negative_e1_temp = temporal_50, 
+         past_negative_e2_text = past_negative_51, 
+         past_negative_e2_vivid = vivid_52, 
+         past_negative_e2_prere = pre_re_53, 
+         past_negative_e2_sense1 = sense_54, 
+         past_negative_e2_sense2 = sense_55, 
+         past_negative_e2_context1 = context_56, 
+         past_negative_e2_context2 = context_57, 
+         past_negative_e2_perspective1 = perspective_58, 
+         past_negative_e2_perspective2 = perspective_59, 
+         past_negative_e2_ratio = ratio_60, 
+         past_negative_e2_intensity = intensity_61, 
+         past_negative_e2_reaction = reaction_62, 
+         past_negative_e2_impt = importance_63,
+         past_negative_e2_coh = coherence_64, 
+         past_negative_e2_temp = temporal_65, 
+        past_positive_e1_text = past_positive_66, 
+         past_positive_e1_vivid = vivid_67, 
+         past_positive_e1_prere = pre_re_68, 
+         past_positive_e1_sense1 = sense_69, 
+         past_positive_e1_sense2 = sense_70, 
+         past_positive_e1_context1 = context_71, 
+         past_positive_e1_context2 = context_72, 
+         past_positive_e1_perspective1 = perspective_73, 
+         past_positive_e1_perspective2 = perspective_74, 
+         past_positive_e1_ratio = ratio_75, 
+         past_positive_e1_intensity = intensity_76, 
+         past_positive_e1_reaction = reaction_77, 
+         past_positive_e1_impt = importance_78,
+         past_positive_e1_coh = coherence_79, 
+         past_positive_e1_temp = temporal_80, 
+         past_positive_e2_text = past_positive_81, 
+         past_positive_e2_vivid = vivid_82, 
+         past_positive_e2_prere = pre_re_83, 
+         past_positive_e2_sense1 = sense_84, 
+         past_positive_e2_sense2 = sense_85, 
+         past_positive_e2_context1 = context_86, 
+         past_positive_e2_context2 = context_87, 
+         past_positive_e2_perspective1 = perspective_88, 
+         past_positive_e2_perspective2 = perspective_89, 
+         past_positive_e2_ratio = ratio_90, 
+         past_positive_e2_intensity = intensity_91, 
+         past_positive_e2_reaction = reaction_92, 
+         past_positive_e2_impt = importance_93,
+         past_positive_e2_coh = coherence_94, 
+         past_positive_e2_temp = temporal_95, 
+        future_neutral_e1_text = future_neutral_96, 
+         future_neutral_e1_vivid = vivid_97, 
+         future_neutral_e1_prere = pre_re_98, 
+         future_neutral_e1_sense1 = sense_99, 
+         future_neutral_e1_sense2 = sense_100, 
+         future_neutral_e1_context1 = context_101, 
+         future_neutral_e1_context2 = context_102, 
+         future_neutral_e1_perspective1 = perspective_103, 
+         future_neutral_e1_perspective2 = perspective_104, 
+         future_neutral_e1_ratio = ratio_105, 
+         future_neutral_e1_intensity = intensity_106, 
+         future_neutral_e1_reaction = reaction_107, 
+         future_neutral_e1_impt = importance_108,
+         future_neutral_e1_coh = coherence_109, 
+         future_neutral_e1_temp = temporal_110, 
+         future_neutral_e2_text = future_neutral_111, 
+         future_neutral_e2_vivid = vivid_112, 
+         future_neutral_e2_prere = pre_re_113, 
+         future_neutral_e2_sense1 = sense_114, 
+         future_neutral_e2_sense2 = sense_115, 
+         future_neutral_e2_context1 = context_116, 
+         future_neutral_e2_context2 = context_117, 
+         future_neutral_e2_perspective1 = perspective_118, 
+         future_neutral_e2_perspective2 = perspective_119, 
+         future_neutral_e2_ratio = ratio_120, 
+         future_neutral_e2_intensity = intensity_121, 
+         future_neutral_e2_reaction = reaction_122, 
+         future_neutral_e2_impt = importance_123,
+         future_neutral_e2_coh = coherence_124, 
+         future_neutral_e2_temp = temporal_125, 
+        future_negative_e1_text = future_negative_126, 
+         future_negative_e1_vivid = vivid_127, 
+         future_negative_e1_prere = pre_re_128, 
+         future_negative_e1_sense1 = sense_129, 
+         future_negative_e1_sense2 = sense_130, 
+         future_negative_e1_context1 = context_131, 
+         future_negative_e1_context2 = context_132, 
+         future_negative_e1_perspective1 = perspective_133, 
+         future_negative_e1_perspective2 = perspective_134, 
+         future_negative_e1_ratio = ratio_135, 
+         future_negative_e1_intensity = intensity_136, 
+         future_negative_e1_reaction = reaction_137, 
+         future_negative_e1_impt = importance_138,
+         future_negative_e1_coh = coherence_139, 
+         future_negative_e1_temp = temporal_140, 
+         future_negative_e2_text = future_negative_141, 
+         future_negative_e2_vivid = vivid_142, 
+         future_negative_e2_prere = pre_re_143, 
+         future_negative_e2_sense1 = sense_144, 
+         future_negative_e2_sense2 = sense_145, 
+         future_negative_e2_context1 = context_146, 
+         future_negative_e2_context2 = context_147, 
+         future_negative_e2_perspective1 = perspective_148, 
+         future_negative_e2_perspective2 = perspective_149, 
+         future_negative_e2_ratio = ratio_150, 
+         future_negative_e2_intensity = intensity_151, 
+         future_negative_e2_reaction = reaction_152, 
+         future_negative_e2_impt = importance_153,
+         future_negative_e2_coh = coherence_154, 
+         future_negative_e2_temp = temporal_155, 
+        future_positive_e1_text = future_positive, 
+         future_positive_e1_vivid = vivid_157, 
+         future_positive_e1_prere = pre_re_158, 
+         future_positive_e1_sense1 = sense_159, 
+         future_positive_e1_sense2 = sense_160, 
+         future_positive_e1_context1 = context_161, 
+         future_positive_e1_context2 = context_162, 
+         future_positive_e1_perspective1 = perspective_163, 
+         future_positive_e1_perspective2 = perspective_164, 
+         future_positive_e1_ratio = ratio_165, 
+         future_positive_e1_intensity = intensity_166, 
+         future_positive_e1_reaction = reaction_167, 
+         future_positive_e1_impt = importance_168,
+         future_positive_e1_coh = coherence_169, 
+         future_positive_e1_temp = temporal_170, 
+         future_positive_e2_text = future_positive_2, 
+         future_positive_e2_vivid = vivid_172, 
+         future_positive_e2_prere = pre_re_173, 
+         future_positive_e2_sense1 = sense_174, 
+         future_positive_e2_sense2 = sense_175, 
+         future_positive_e2_context1 = context_176, 
+         future_positive_e2_context2 = context_177, 
+         future_positive_e2_perspective1 = perspective_178, 
+         future_positive_e2_perspective2 = perspective_179, 
+         future_positive_e2_ratio = ratio_180, 
+         future_positive_e2_intensity = intensity_181, 
+         future_positive_e2_reaction = reaction_182, 
+         future_positive_e2_impt = importance_183,
+         future_positive_e2_coh = coherence_184, 
+         future_positive_e2_temp = temporal_185)</code></pre>
+<p>separate text from ratings</p>
+<pre class="r"><code>event_text &lt;- phenom_renamed %&gt;%
+  select(1:5, ends_with(&quot;text&quot;)) 
 
-#fix order of group factor
-specificity$group &lt;- fct_relevel(specificity$group, c(&quot;CON&quot;, &quot;ANX&quot;))
+  event_text %&gt;% write_csv(here(&quot;data&quot;, &quot;study3_event_text.csv&quot;))
 
-specificity$valence &lt;- fct_relevel(specificity$valence, c(&quot;positive&quot;, &quot;neutral&quot;, &quot;negative&quot;))
+phenom_ratings &lt;- phenom_renamed %&gt;%
+  select(1:5, !ends_with(&quot;text&quot;))</code></pre>
+</div>
+<div id="make-ratings-long" class="section level1">
+<h1>make ratings long</h1>
+<pre class="r"><code>phenom_long &lt;- phenom_ratings %&gt;%
+  pivot_longer(names_to = c(&quot;direction&quot;, &quot;valence&quot;, &quot;event&quot;, &quot;rating&quot;), 
+               values_to = &quot;score&quot;, 
+               names_sep = &quot;_&quot;, 
+               6:173)
 
-specificity$direction &lt;- fct_relevel(specificity$direction, c(&quot;past&quot;, &quot;future&quot;))</code></pre>
-</div>
-<div id="replicating-plots-from-draft-paper" class="section level1">
-<h1>Replicating plots from draft paper</h1>
-<p>The original analysis looked at proportion internal by direction (past/future), valence (pos, neutral, neg), group (anx, con), finding only a main effect of group.</p>
-<div id="main-effect-of-group" class="section level3">
-<h3>Main effect of group</h3>
-<pre class="r"><code>specificity %&gt;%
-  group_by(group) %&gt;%
-  summarise(mean = mean(proportion, na.rm = TRUE), 
-            sd = sd(proportion, na.rm = TRUE), 
-            n = n(), 
-            stderr = sd/sqrt(n)) %&gt;%
-  ggplot(aes(x = group, y = mean, fill = group)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9)) +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  ylim(0,1) +
-  labs(title = &quot;Proportion internal by group&quot;, subtitle = &quot;averaged across valence and direction&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overgendirection-1">
-Past versions of overgendirection-1.png
-</button>
-</p>
-<div id="fig-overgendirection-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/4f73701809164b719f2a3b0a9a50f03bc04b007a/docs/figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" target="_blank">4f73701</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<div id="playing-with-effect-of-groupvalence-by-group" class="section level1">
-<h1>Playing with effect of group/valence by group</h1>
-<pre class="r"><code>spec_summary &lt;- specificity %&gt;%
-  group_by(group, direction, valence) %&gt;%
-  summarise(mean = mean(proportion, na.rm = TRUE), 
-            sd = sd(proportion, na.rm = TRUE), 
-            n = n(), 
-            stderr = sd/sqrt(n))</code></pre>
-<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
-<pre class="r"><code>spec_summary %&gt;%
-  ggplot(aes(x = valence, y = mean, fill = valence)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9))  +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
- facet_grid(vars(group), vars(direction))</code></pre>
-<p><img src="figure/mtt_study3_plotting2.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Is there anything going on here? Maybe a tiny bit more variability across valence in the anx group relative to controls…</p>
+phenom_long %&gt;% write_csv(here(&quot;data&quot;, &quot;study3_phenom.csv&quot;))</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -779,33 +838,34 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] ggbeeswarm_0.6.0 here_0.1         ggeasy_0.1.2     janitor_1.2.0   
- [5] forcats_0.5.0    stringr_1.4.0    dplyr_1.0.1      purrr_0.3.3     
- [9] readr_1.3.1      tidyr_1.1.0      tibble_3.0.3     ggplot2_3.3.2   
-[13] tidyverse_1.3.0  workflowr_1.6.2 
+ [1] ggbeeswarm_0.6.0  wesanderson_0.3.6 naniar_0.4.1     
+ [4] janitor_1.2.0     readxl_1.3.1      here_0.1         
+ [7] forcats_0.5.0     stringr_1.4.0     dplyr_1.0.1      
+[10] purrr_0.3.3       readr_1.3.1       tidyr_1.1.0      
+[13] tibble_3.0.3      ggplot2_3.3.2     tidyverse_1.3.0  
+[16] workflowr_1.6.2  
 
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.5             lubridate_1.7.4        assertthat_0.2.1      
  [4] rprojroot_1.3-2        digest_0.6.25          R6_2.4.1              
  [7] cellranger_1.1.0       backports_1.1.8        reprex_0.3.0          
-[10] evaluate_0.14          httr_1.4.1             pillar_1.4.6          
-[13] rlang_0.4.7            readxl_1.3.1           rstudioapi_0.11.0-9000
+[10] visdat_0.5.2           evaluate_0.14          httr_1.4.1            
+[13] pillar_1.4.6           rlang_0.4.7            rstudioapi_0.11.0-9000
 [16] whisker_0.4            blob_1.2.1             rmarkdown_1.15        
-[19] labeling_0.3           munsell_0.5.0          broom_0.7.0           
-[22] compiler_3.5.1         httpuv_1.5.2           vipor_0.4.5           
-[25] modelr_0.1.8           xfun_0.8               pkgconfig_2.0.3       
-[28] htmltools_0.5.0        tidyselect_1.1.0       fansi_0.4.1           
-[31] crayon_1.3.4           dbplyr_1.4.4           withr_2.2.0           
-[34] later_1.1.0.1          grid_3.5.1             jsonlite_1.7.0        
-[37] gtable_0.3.0           lifecycle_0.2.0        DBI_1.0.0             
-[40] git2r_0.27.1           magrittr_1.5           scales_1.1.1          
-[43] cli_2.0.2              stringi_1.4.6          farver_2.0.3          
-[46] fs_1.4.1               promises_1.1.1         xml2_1.3.2            
-[49] ellipsis_0.3.1         generics_0.0.2         vctrs_0.3.2           
-[52] RColorBrewer_1.1-2     tools_3.5.1            glue_1.4.1            
-[55] beeswarm_0.2.3         hms_0.5.3              yaml_2.2.1            
-[58] colorspace_1.4-1       rvest_0.3.6            knitr_1.23            
-[61] haven_2.3.1           </code></pre>
+[19] munsell_0.5.0          broom_0.7.0            vipor_0.4.5           
+[22] compiler_3.5.1         httpuv_1.5.2           modelr_0.1.8          
+[25] xfun_0.8               pkgconfig_2.0.3        htmltools_0.5.0       
+[28] tidyselect_1.1.0       fansi_0.4.1            crayon_1.3.4          
+[31] dbplyr_1.4.4           withr_2.2.0            later_1.1.0.1         
+[34] grid_3.5.1             jsonlite_1.7.0         gtable_0.3.0          
+[37] lifecycle_0.2.0        DBI_1.0.0              git2r_0.27.1          
+[40] magrittr_1.5           scales_1.1.1           cli_2.0.2             
+[43] stringi_1.4.6          fs_1.4.1               promises_1.1.1        
+[46] snakecase_0.9.2        xml2_1.3.2             ellipsis_0.3.1        
+[49] generics_0.0.2         vctrs_0.3.2            tools_3.5.1           
+[52] glue_1.4.1             beeswarm_0.2.3         hms_0.5.3             
+[55] yaml_2.2.1             colorspace_1.4-1       rvest_0.3.6           
+[58] knitr_1.23             haven_2.3.1           </code></pre>
 </div>
 </div>
 

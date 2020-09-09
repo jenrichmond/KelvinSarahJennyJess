@@ -13,7 +13,7 @@
 <meta name="author" content="Jen Richmond" />
 
 
-<title>plotting_specficity</title>
+<title>MTT_study3_cleaning</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -379,7 +379,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">plotting_specficity</h1>
+<h1 class="title toc-ignore">MTT_study3_cleaning</h1>
 <h4 class="author">Jen Richmond</h4>
 
 </div>
@@ -541,7 +541,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_plotting2.Rmd</code>) and HTML (<code>docs/mtt_study3_plotting2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mtt_study3_cleaning1.Rmd</code>) and HTML (<code>docs/mtt_study3_cleaning1.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -570,7 +570,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_plotting2.Rmd" target="_blank">27e2921</a>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/mtt_study3_cleaning1.Rmd" target="_blank">27e2921</a>
 </td>
 <td>
 Your Name
@@ -582,40 +582,6 @@ Your Name
 updating plots
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/4f73701809164b719f2a3b0a9a50f03bc04b007a/docs/mtt_study3_plotting2.html" target="_blank">4f73701</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/b4910d2484967769de5dbf13b297e734f8857156/analysis/mtt_study3_plotting2.Rmd" target="_blank">b4910d2</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-<td>
-adding overgen and specificity plots
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -623,139 +589,144 @@ adding overgen and specificity plots
 </div>
 </div>
 </div>
-<div id="specificity" class="section level1">
-<h1>SPECIFICITY</h1>
-</div>
+<p>This Rmd file reads in, cleans up and write to csv categorical coding and specificity data for the MTT project.</p>
 <div id="load-packages" class="section level1">
 <h1>load packages</h1>
-<pre class="r"><code>library(tidyverse)
-library(janitor)
-library(ggeasy)
-library(here)
+<pre class="r"><code>library(tidyverse) # data wrangling/visualisation
+library(here) # for avoiding filepath drama
+library(readxl) # for reading excel sheets
+library(janitor) # for cleaning functions
+library(naniar) # visualising missing data
+library(wesanderson) #colour palettes
 library(ggbeeswarm)</code></pre>
 </div>
 <div id="read-data" class="section level1">
 <h1>read data</h1>
-<pre class="r"><code>mtt_long &lt;- read_csv(here(&quot;data&quot;, &quot;study3_clean_mtt.csv&quot;))</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  px_no = col_character(),
-  identifier = col_character(),
-  group = col_character(),
-  direction = col_character(),
-  valence = col_character(),
-  event = col_character(),
-  code = col_double(),
-  internal = col_double(),
-  external = col_double(),
-  proportion = col_double()
-)</code></pre>
-<p>Each participant was asked to talk about 2 events in each condition category</p>
+<p>The R compatible version of the raw data lives in the xls sheet called Detail_Analysis_R within the sheet called Study3_MTT_Clinical_group. Use readxl to read in just that sheet</p>
+<pre class="r"><code>mtt &lt;- readxl::read_excel(here(&quot;data&quot;, &quot;Study 3_MTT_Clinical Group_ Data (65 or under).xlsx&quot;), sheet = &quot;Detail_Analysis_R&quot;) %&gt;%
+  clean_names() 
+
+table(mtt$group, mtt$identifier)</code></pre>
+<pre><code>     
+      ESL Good Incomplete
+  ANX   1   14          5
+  CON   2   20          1</code></pre>
+<pre class="r"><code># filter only pp who 
+mtt_complete &lt;- mtt %&gt;%
+  filter(identifier == &quot;Good&quot;)</code></pre>
+</div>
+<div id="clean-data" class="section level1">
+<h1>clean data</h1>
+<div id="make-it-long" class="section level3">
+<h3>make it long</h3>
+<pre class="r"><code># list variable names
+names(mtt_complete)</code></pre>
+<pre><code> [1] &quot;px_no&quot;                        &quot;identifier&quot;                  
+ [3] &quot;group&quot;                        &quot;future_neutral_e1_code&quot;      
+ [5] &quot;future_neutral_e1_internal&quot;   &quot;future_neutral_e1_external&quot;  
+ [7] &quot;future_neutral_e1_proportion&quot; &quot;future_neutral_e2_code&quot;      
+ [9] &quot;future_neutral_e2_internal&quot;   &quot;future_neutral_e2_external&quot;  
+[11] &quot;future_neutral_e2_proportion&quot; &quot;past_neutral_e1_code&quot;        
+[13] &quot;past_neutral_e1_internal&quot;     &quot;past_neutral_e1_external&quot;    
+[15] &quot;past_neutral_e1_proportion&quot;   &quot;past_neutral_e2_code&quot;        
+[17] &quot;past_neutral_e2_internal&quot;     &quot;past_neutral_e2_external&quot;    
+[19] &quot;past_neutral_e2_proportion&quot;   &quot;past_neg_e1_code&quot;            
+[21] &quot;past_neg_e1_internal&quot;         &quot;past_neg_e1_external&quot;        
+[23] &quot;past_neg_e1_proportion&quot;       &quot;past_neg_e2_code&quot;            
+[25] &quot;past_neg_e2_internal&quot;         &quot;past_neg_e2_external&quot;        
+[27] &quot;past_neg_e2_proportion&quot;       &quot;past_pos_e1_code&quot;            
+[29] &quot;past_pos_e1_internal&quot;         &quot;past_pos_e1_external&quot;        
+[31] &quot;past_pos_e1_proportion&quot;       &quot;past_pos_e2_code&quot;            
+[33] &quot;past_pos_e2_internal&quot;         &quot;past_pos_e2_external&quot;        
+[35] &quot;past_pos_e2_proportion&quot;       &quot;future_pos_e1_code&quot;          
+[37] &quot;future_pos_e1_internal&quot;       &quot;future_pos_e1_external&quot;      
+[39] &quot;future_pos_e1_proportion&quot;     &quot;future_pos_e2_code&quot;          
+[41] &quot;future_pos_e2_internal&quot;       &quot;future_pos_e2_external&quot;      
+[43] &quot;future_pos_e2_proportion&quot;     &quot;future_neg_e1_code&quot;          
+[45] &quot;future_neg_e1_internal&quot;       &quot;future_neg_e1_external&quot;      
+[47] &quot;future_neg_e1_proportion&quot;     &quot;future_neg_e2_code&quot;          
+[49] &quot;future_neg_e2_internal&quot;       &quot;future_neg_e2_external&quot;      
+[51] &quot;future_neg_e2_proportion&quot;    </code></pre>
+<pre class="r"><code># make long to get columns for direction, valence, event etc 
+mtt_longest &lt;- mtt_complete %&gt;%
+  pivot_longer(names_to = c(&quot;direction&quot;, &quot;valence&quot;, &quot;event&quot;, &quot;measure&quot;), 
+               values_to = &quot;response&quot;, 
+               names_sep = &quot;_&quot;, future_neutral_e1_code:future_neg_e2_proportion) %&gt;%
+  mutate(id = row_number())
+
+# make wide to have dvs in different columns, will throw a warning about duplicates /list
+mtt_long &lt;- mtt_longest %&gt;%
+  pivot_wider(names_from = measure, values_from = response, id_cols = px_no:event) %&gt;%
+  arrange(px_no, direction, valence, event)</code></pre>
+<p>notes:</p>
 <ul>
-<li>past, neutral</li>
-<li>past, negative</li>
-<li>past, positive</li>
-<li>future, neutral</li>
-<li>future, negative</li>
-<li>future, positive</li>
+<li>pp_no problems, there are two pp1021, renamed in excel as 1021J and 1021S</li>
 </ul>
-<p>These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details.</p>
-<p>Filter out events that weren’t coded as specific.</p>
-<pre class="r"><code>specificity &lt;- mtt_long %&gt;%
-  filter(code == 3) %&gt;%
-  mutate(valence = recode(valence, &quot;pos&quot; = &quot;positive&quot;,
-                          &quot;neutral&quot; = &quot;neutral&quot;,
-                          &quot;neg&quot; = &quot;negative&quot;,
-                        .default = &quot;NA&quot;)) %&gt;%
-  arrange(px_no, valence, direction, event)
+</div>
+<div id="fix-list-issue-no-longer-an-issue" class="section level3">
+<h3>fix list issue (NO LONGER AN ISSUE)</h3>
+<p>Trying to work out why variables code through proportion are lists.</p>
+<p>Ahhh this whole list issue was caused by duplicated participant numbers. The chunk below is probably not needed anymore</p>
+<pre class="r"><code>mtt_long_df &lt;- as.data.frame(mtt_long)
 
-#fix order of group factor
-specificity$group &lt;- fct_relevel(specificity$group, c(&quot;CON&quot;, &quot;ANX&quot;))
+glimpse(mtt_long_df) # so weird that code:proportion are list type, ridiculous work around required because I don&#39;t really GET lists</code></pre>
+<pre><code>Rows: 408
+Columns: 10
+$ px_no      &lt;chr&gt; &quot;1001&quot;, &quot;1001&quot;, &quot;1001&quot;, &quot;1001&quot;, &quot;1001&quot;, &quot;1001&quot;, &quot;1001…
+$ identifier &lt;chr&gt; &quot;Good&quot;, &quot;Good&quot;, &quot;Good&quot;, &quot;Good&quot;, &quot;Good&quot;, &quot;Good&quot;, &quot;Good…
+$ group      &lt;chr&gt; &quot;ANX&quot;, &quot;ANX&quot;, &quot;ANX&quot;, &quot;ANX&quot;, &quot;ANX&quot;, &quot;ANX&quot;, &quot;ANX&quot;, &quot;ANX…
+$ direction  &lt;chr&gt; &quot;future&quot;, &quot;future&quot;, &quot;future&quot;, &quot;future&quot;, &quot;future&quot;, &quot;fu…
+$ valence    &lt;chr&gt; &quot;neg&quot;, &quot;neg&quot;, &quot;neutral&quot;, &quot;neutral&quot;, &quot;pos&quot;, &quot;pos&quot;, &quot;ne…
+$ event      &lt;chr&gt; &quot;e1&quot;, &quot;e2&quot;, &quot;e1&quot;, &quot;e2&quot;, &quot;e1&quot;, &quot;e2&quot;, &quot;e1&quot;, &quot;e2&quot;, &quot;e1&quot;,…
+$ code       &lt;dbl&gt; 3, 2, 3, 2, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3,…
+$ internal   &lt;dbl&gt; 17, NA, 14, NA, 20, 17, 14, 32, 7, NA, 23, 15, 15, 11…
+$ external   &lt;dbl&gt; 2, NA, 3, NA, 0, 0, 0, 1, 5, NA, 0, 0, 2, 0, 0, 0, 1,…
+$ proportion &lt;dbl&gt; 0.8947368, NA, 0.8235294, NA, 1.0000000, 1.0000000, 1…</code></pre>
+<pre class="r"><code># pull code, internal, external, and proportion into values in the environment using unlist
 
-specificity$valence &lt;- fct_relevel(specificity$valence, c(&quot;positive&quot;, &quot;neutral&quot;, &quot;negative&quot;))
+codes &lt;- unlist(mtt_long$code) # weird that this has 516 obs not 504
+internal &lt;- unlist(mtt_long$internal)
+external &lt;- unlist(mtt_long$external)
+proportion &lt;- unlist(mtt_long$proportion)
 
-specificity$direction &lt;- fct_relevel(specificity$direction, c(&quot;past&quot;, &quot;future&quot;))</code></pre>
+# use col bind to join them and then make into a data frame
+values &lt;- cbind(codes, internal, external, proportion)
+values &lt;- as.data.frame(values) 
+
+#drop the extra empty rows at the bottom to get 504 obs again
+
+mtt_values &lt;- values[-c(505:516), ] 
+
+# select just the variables from the mtt_df
+mtt_variables &lt;- mtt_long_df %&gt;%
+  select(1:6)
+
+#join the mtt variables and values using cbind
+
+mtt_done &lt;- cbind(mtt_variables, mtt_values)
+
+#did that fix the data type issue?
+
+glimpse(mtt_done)
+
+# YES</code></pre>
 </div>
-<div id="replicating-plots-from-draft-paper" class="section level1">
-<h1>Replicating plots from draft paper</h1>
-<p>The original analysis looked at proportion internal by direction (past/future), valence (pos, neutral, neg), group (anx, con), finding only a main effect of group.</p>
-<div id="main-effect-of-group" class="section level3">
-<h3>Main effect of group</h3>
-<pre class="r"><code>specificity %&gt;%
-  group_by(group) %&gt;%
-  summarise(mean = mean(proportion, na.rm = TRUE), 
-            sd = sd(proportion, na.rm = TRUE), 
-            n = n(), 
-            stderr = sd/sqrt(n)) %&gt;%
-  ggplot(aes(x = group, y = mean, fill = group)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9)) +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
-  ylim(0,1) +
-  labs(title = &quot;Proportion internal by group&quot;, subtitle = &quot;averaged across valence and direction&quot;)</code></pre>
-<p><img src="figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overgendirection-1">
-Past versions of overgendirection-1.png
-</button>
-</p>
-<div id="fig-overgendirection-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/4f73701809164b719f2a3b0a9a50f03bc04b007a/docs/figure/mtt_study3_plotting2.Rmd/overgendirection-1.png" target="_blank">4f73701</a>
-</td>
-<td>
-Your Name
-</td>
-<td>
-2020-09-08
-</td>
-</tr>
-</tbody>
-</table>
+<div id="check-proportion-calc" class="section level3">
+<h3>check proportion calc</h3>
+<p>The proportions were calculated in excel, lets just make sure they are correct by making a new variable called prop, and comparing it to the imported proportion variable</p>
+<pre class="r"><code>mtt_check &lt;- mtt_long %&gt;%
+  mutate(prop = internal/(internal + external)) %&gt;%
+  mutate(check = if_else(prop == proportion, TRUE, FALSE))
+
+# check missingness
+
+vis_miss(mtt_long)</code></pre>
+<p><img src="figure/mtt_study3_cleaning1.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /> That looks ok, only a few NAs in the code column, more in the int/ext/prop columns because those will be NA if code is not = 3.</p>
 </div>
-</div>
-</div>
-</div>
-<div id="playing-with-effect-of-groupvalence-by-group" class="section level1">
-<h1>Playing with effect of group/valence by group</h1>
-<pre class="r"><code>spec_summary &lt;- specificity %&gt;%
-  group_by(group, direction, valence) %&gt;%
-  summarise(mean = mean(proportion, na.rm = TRUE), 
-            sd = sd(proportion, na.rm = TRUE), 
-            n = n(), 
-            stderr = sd/sqrt(n))</code></pre>
-<pre><code>`summarise()` regrouping output by &#39;group&#39;, &#39;direction&#39; (override with `.groups` argument)</code></pre>
-<pre class="r"><code>spec_summary %&gt;%
-  ggplot(aes(x = valence, y = mean, fill = valence)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
-                  size=.3,    # Thinner lines
-                    width=.2,
-                      position=position_dodge(.9))  +
-  scale_fill_brewer(palette=&quot;Dark2&quot;) +
- facet_grid(vars(group), vars(direction))</code></pre>
-<p><img src="figure/mtt_study3_plotting2.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Is there anything going on here? Maybe a tiny bit more variability across valence in the anx group relative to controls…</p>
+<div id="write-cleaned-to-csv" class="section level3">
+<h3>write cleaned to csv</h3>
+<pre class="r"><code>mtt_long %&gt;%
+  write_csv(here(&quot;data&quot;, &quot;study3_clean_mtt.csv&quot;))</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -779,33 +750,36 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] ggbeeswarm_0.6.0 here_0.1         ggeasy_0.1.2     janitor_1.2.0   
- [5] forcats_0.5.0    stringr_1.4.0    dplyr_1.0.1      purrr_0.3.3     
- [9] readr_1.3.1      tidyr_1.1.0      tibble_3.0.3     ggplot2_3.3.2   
-[13] tidyverse_1.3.0  workflowr_1.6.2 
+ [1] ggbeeswarm_0.6.0  wesanderson_0.3.6 naniar_0.4.1     
+ [4] janitor_1.2.0     readxl_1.3.1      here_0.1         
+ [7] forcats_0.5.0     stringr_1.4.0     dplyr_1.0.1      
+[10] purrr_0.3.3       readr_1.3.1       tidyr_1.1.0      
+[13] tibble_3.0.3      ggplot2_3.3.2     tidyverse_1.3.0  
+[16] workflowr_1.6.2  
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.5             lubridate_1.7.4        assertthat_0.2.1      
- [4] rprojroot_1.3-2        digest_0.6.25          R6_2.4.1              
- [7] cellranger_1.1.0       backports_1.1.8        reprex_0.3.0          
-[10] evaluate_0.14          httr_1.4.1             pillar_1.4.6          
-[13] rlang_0.4.7            readxl_1.3.1           rstudioapi_0.11.0-9000
-[16] whisker_0.4            blob_1.2.1             rmarkdown_1.15        
-[19] labeling_0.3           munsell_0.5.0          broom_0.7.0           
-[22] compiler_3.5.1         httpuv_1.5.2           vipor_0.4.5           
-[25] modelr_0.1.8           xfun_0.8               pkgconfig_2.0.3       
-[28] htmltools_0.5.0        tidyselect_1.1.0       fansi_0.4.1           
-[31] crayon_1.3.4           dbplyr_1.4.4           withr_2.2.0           
-[34] later_1.1.0.1          grid_3.5.1             jsonlite_1.7.0        
-[37] gtable_0.3.0           lifecycle_0.2.0        DBI_1.0.0             
-[40] git2r_0.27.1           magrittr_1.5           scales_1.1.1          
-[43] cli_2.0.2              stringi_1.4.6          farver_2.0.3          
-[46] fs_1.4.1               promises_1.1.1         xml2_1.3.2            
-[49] ellipsis_0.3.1         generics_0.0.2         vctrs_0.3.2           
-[52] RColorBrewer_1.1-2     tools_3.5.1            glue_1.4.1            
-[55] beeswarm_0.2.3         hms_0.5.3              yaml_2.2.1            
-[58] colorspace_1.4-1       rvest_0.3.6            knitr_1.23            
-[61] haven_2.3.1           </code></pre>
+ [1] Rcpp_1.0.5             lubridate_1.7.4        utf8_1.1.4            
+ [4] assertthat_0.2.1       rprojroot_1.3-2        digest_0.6.25         
+ [7] R6_2.4.1               cellranger_1.1.0       backports_1.1.8       
+[10] reprex_0.3.0           visdat_0.5.2           evaluate_0.14         
+[13] httr_1.4.1             pillar_1.4.6           rlang_0.4.7           
+[16] rstudioapi_0.11.0-9000 whisker_0.4            blob_1.2.1            
+[19] rmarkdown_1.15         labeling_0.3           munsell_0.5.0         
+[22] broom_0.7.0            vipor_0.4.5            compiler_3.5.1        
+[25] httpuv_1.5.2           modelr_0.1.8           xfun_0.8              
+[28] pkgconfig_2.0.3        htmltools_0.5.0        tidyselect_1.1.0      
+[31] fansi_0.4.1            crayon_1.3.4           dbplyr_1.4.4          
+[34] withr_2.2.0            later_1.1.0.1          grid_3.5.1            
+[37] jsonlite_1.7.0         gtable_0.3.0           lifecycle_0.2.0       
+[40] DBI_1.0.0              git2r_0.27.1           magrittr_1.5          
+[43] scales_1.1.1           cli_2.0.2              stringi_1.4.6         
+[46] farver_2.0.3           fs_1.4.1               promises_1.1.1        
+[49] snakecase_0.9.2        xml2_1.3.2             ellipsis_0.3.1        
+[52] generics_0.0.2         vctrs_0.3.2            tools_3.5.1           
+[55] glue_1.4.1             beeswarm_0.2.3         hms_0.5.3             
+[58] yaml_2.2.1             colorspace_1.4-1       rvest_0.3.6           
+[61] knitr_1.23             haven_2.3.1           </code></pre>
+</div>
 </div>
 </div>
 

@@ -333,7 +333,7 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-09-08
+<strong>Last updated:</strong> 2020-09-09
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -364,16 +364,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree24e697ba7838c3e82e643b79f5d99d55a51ef7b5targetblank24e697ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/24e697ba7838c3e82e643b79f5d99d55a51ef7b5" target="_blank">24e697b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree27e2921af7d5161c5b87f22f4da3cc661b17f51ctargetblank27e2921a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/27e2921af7d5161c5b87f22f4da3cc661b17f51c" target="_blank">27e2921</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree24e697ba7838c3e82e643b79f5d99d55a51ef7b5targetblank24e697ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree27e2921af7d5161c5b87f22f4da3cc661b17f51ctargetblank27e2921a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/24e697ba7838c3e82e643b79f5d99d55a51ef7b5" target="_blank">24e697b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/27e2921af7d5161c5b87f22f4da3cc661b17f51c" target="_blank">27e2921</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -386,8 +386,15 @@ Ignored files:
     Ignored:    OLDAnalysis/
     Ignored:    Prism & Graphs/
 
+Untracked files:
+    Untracked:  analysis/data
+    Untracked:  analysis/functions.R
+    Untracked:  data/study3_event_text.csv
+    Untracked:  data/study3_phenom.csv
+
 Unstaged changes:
-    Deleted:    analysis/mtt_study3_plotting.Rmd
+    Deleted:    analysis/mtt_study3_cleaning.Rmd
+    Modified:   data/Study 3_MTT_Clinical Group_ Data (65 or under).xlsx
 
 </code></pre>
 <p>
@@ -426,6 +433,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/27e2921af7d5161c5b87f22f4da3cc661b17f51c/analysis/index.Rmd" target="_blank">27e2921</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+updating plots
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/52d332c4be403aef0ceb63bd02f10867520d983f/docs/index.html" target="_blank">52d332c</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -650,6 +691,13 @@ Start workflowr project.
 </ol>
 <ul>
 <li>just includes main effect group plot thus far, need to dig into direction/valence/group</li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li><a href="mtt_study3_plotting3.html">Phenomenological ratings plots- work in progress</a></li>
+</ol>
+<ul>
+<li>includes plots for a few key phenom variables, need to check with Sarah which ones were analysed</li>
+<li>also need to check why there are two phemon variables for sensory, context and perspective and what to do with them in analysis.</li>
 </ul>
 </div>
 <div id="analysis" class="section level1">
