@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstreed89ae6f194f539dbe1dc2d48e10ff56d467353c7targetblankd89ae6fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/d89ae6f194f539dbe1dc2d48e10ff56d467353c7" target="_blank">d89ae6f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree90542cb157c5979b8958fb6fc90d0746de35e19btargetblank90542cba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/90542cb157c5979b8958fb6fc90d0746de35e19b" target="_blank">90542cb</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstreed89ae6f194f539dbe1dc2d48e10ff56d467353c7targetblankd89ae6fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree90542cb157c5979b8958fb6fc90d0746de35e19btargetblank90542cba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/d89ae6f194f539dbe1dc2d48e10ff56d467353c7" target="_blank">d89ae6f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/90542cb157c5979b8958fb6fc90d0746de35e19b" target="_blank">90542cb</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -518,12 +518,9 @@ Ignored files:
     Ignored:    OLDAnalysis/
     Ignored:    Prism & Graphs/
 
-Untracked files:
-    Untracked:  data/~$Study 3_MTT_Clinical Group_ Data (65 or under).xlsx
-
 Unstaged changes:
-    Deleted:    analysis/mtt_study3_plotting.Rmd
     Modified:   data/Study 3_MTT_Clinical Group_ Data (65 or under).xlsx
+    Deleted:    data/~$Study 3_MTT_Clinical Group_ Data (65 or under).xlsx
 
 </code></pre>
 <p>
@@ -562,6 +559,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/90542cb157c5979b8958fb6fc90d0746de35e19b/analysis/mtt_study3_plotting1.Rmd" target="_blank">90542cb</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+wflow_publish(“analysis/mtt_study3_plotting1.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/405027685bc7ab4955fcc412327f361beb4ab7f0/docs/mtt_study3_plotting1.html" target="_blank">4050276</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -694,7 +725,7 @@ cols(
 <p>These 12 events were coded as 1 = general, 2 = categorical, 3 = specific. Only specific events can be coded for internal vs. external details.</p>
 <p>The dummy coding involved adding these codes together for each condition combination resulting in a max score of 6 if participants came up with 2 x specific events, and a minimum score of 2 if they produced 2 x general events.</p>
 <pre class="r"><code>event_scores &lt;- mtt_long %&gt;%
-  group_by(group, direction, valence) %&gt;%  # for each combination of direction/valence
+  group_by(identifier, group, direction, valence) %&gt;%  # for each combination of direction/valence
   count(px_no, code)  
 
 # new column calc dummy score
@@ -705,11 +736,16 @@ dummy_scores &lt;- event_scores %&gt;%
 # for each pp, direction, valence, add the total dummy score together
 
 overgen &lt;- dummy_scores %&gt;%
-  group_by(px_no, group, direction, valence) %&gt;%
-  summarise(dummy_total = sum(dummy_score)) 
+  group_by(px_no, identifier, group, direction, valence) %&gt;%
+  summarise(dummy_total = sum(dummy_score))  %&gt;%
+  mutate(valence = recode(valence, &quot;pos&quot; = &quot;positive&quot;,
+                          &quot;neutral&quot; = &quot;neutral&quot;,
+                          &quot;neg&quot; = &quot;negative&quot;,
+                        .default = &quot;NA&quot;))
 
 # fix order of pos, neutral, neg factor
-overgen$valence &lt;- fct_relevel(overgen$valence, c(&quot;pos&quot;, &quot;neutral&quot;, &quot;neg&quot;))
+
+overgen$valence &lt;- fct_relevel(overgen$valence, c(&quot;positive&quot;, &quot;neutral&quot;, &quot;negative&quot;))
 
 overgen$direction &lt;- fct_relevel(overgen$direction, c(&quot;past&quot;, &quot;future&quot;))</code></pre>
 </div>
@@ -814,6 +850,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/405027685bc7ab4955fcc412327f361beb4ab7f0/docs/figure/mtt_study3_plotting1.Rmd/overgenvalence-1.png" target="_blank">4050276</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/85e8dfa0d8728e0bb6af7e77c9ef36927cf0d0d7/docs/figure/mtt_study3_plotting1.Rmd/overgenvalence-1.png" target="_blank">85e8dfa</a>
@@ -1038,12 +1085,9 @@ Your Name
 </ol>
 </div>
 </div>
-<div id="next-steps" class="section level1">
-<h1>Next steps</h1>
-<div id="working-out-data-difference" class="section level3">
-<h3>working out data difference</h3>
+<div id="next-steps-data-difference-problem" class="section level1">
+<h1>Next steps: data difference problem</h1>
 <p>The above constructs dummy scores from the Detail_Analysis sheet in the excel file. In that same file, there is a sheet called Coding_Summary, that sums scores from the Detail Analysis sheet to produce dummary scores. Lets import that sheet directly and see if we can replicate the plot in the draft.</p>
-</div>
 <div id="read-coding-data" class="section level3">
 <h3>read coding data</h3>
 <pre class="r"><code>coding &lt;- readxl::read_excel(here(&quot;data&quot;, &quot;Study 3_MTT_Clinical Group_ Data (65 or under).xlsx&quot;), sheet = &quot;Coding_Summary_R&quot;) %&gt;%
@@ -1105,15 +1149,136 @@ coding_long_complete$valence &lt;- fct_relevel(coding_long_complete$valence, c(&
 <pre><code>`summarise()` ungrouping output (override with `.groups` argument)</code></pre>
 <pre class="r"><code>print(valenceplot2)</code></pre>
 <p><img src="figure/mtt_study3_plotting1.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/405027685bc7ab4955fcc412327f361beb4ab7f0/docs/figure/mtt_study3_plotting1.Rmd/unnamed-chunk-5-1.png" target="_blank">4050276</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>OK that looks quite different to the valence plot from above (but more similar to the plot in the manscript draft)…. what is going on?</p>
 <pre class="r"><code>valenceplot1 + valenceplot2</code></pre>
 <p><img src="figure/mtt_study3_plotting1.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/405027685bc7ab4955fcc412327f361beb4ab7f0/docs/figure/mtt_study3_plotting1.Rmd/unnamed-chunk-6-1.png" target="_blank">4050276</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Looks like mean for negative is REALLY different but means for positive and neutral aren’t exactly the same either</p>
+</div>
+</div>
+<div id="get-summary-stats" class="section level3">
+<h3>Get summary stats</h3>
+<div id="overgen-summary-stats" class="section level4">
+<h4>overgen summary stats</h4>
+<pre class="r"><code>overgen %&gt;%
+  group_by(valence) %&gt;%
+  summarise(mean = mean(dummy_total, na.rm = TRUE), 
+            sd = sd(dummy_total, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n))</code></pre>
+<pre><code>`summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code># A tibble: 3 x 5
+  valence   mean    sd     n stderr
+  &lt;fct&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt;
+1 positive  5.53 0.863    68 0.105 
+2 neutral   5.71 0.734    68 0.0890
+3 negative  5.67 0.691    68 0.0838</code></pre>
+</div>
+<div id="coding-summary-stats" class="section level4">
+<h4>coding summary stats</h4>
+<pre class="r"><code>coding_long_complete %&gt;%
+  group_by(valence) %&gt;%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) </code></pre>
+<pre><code>`summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code># A tibble: 3 x 5
+  valence   mean    sd     n stderr
+  &lt;fct&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt;
+1 positive  5.46 0.953    68 0.116 
+2 neutral   5.71 0.734    68 0.0890
+3 negative  4.22 1.67     68 0.203 </code></pre>
+<p>Hmmmm means for neutral is the same, but means for both positive and neutral are different…..</p>
 </div>
 </div>
 </div>
-<div id="what-next" class="section level1">
-<h1>What next?</h1>
+<div id="what-happened" class="section level1">
+<h1>What happened??</h1>
 <p>Both the overgen df (from the Detail Analysis sheet) and the coding_long_complete df (from the Coding Summary sheet) have 204 obs. Need to find a package that will compare two dataframes and tell me which values are different.</p>
+<p>Maybe dplyr joins will do this, if I just join the coding_long_complete to the overgen df, will it show me which values are different??</p>
+<pre class="r"><code>join &lt;- right_join(coding_long_complete, overgen, 
+                   by = c(&quot;px_no&quot;, &quot;identifier&quot;, &quot;group&quot;, &quot;direction&quot;, &quot;valence&quot;)) %&gt;%
+  mutate(match = if_else(score == dummy_total, &quot;TRUE&quot;, &quot;FALSE&quot;)) %&gt;%
+  arrange(px_no, direction, valence)</code></pre>
+<pre class="r"><code>mismatch &lt;- join %&gt;%
+  filter(match == FALSE)</code></pre>
+<p>Yikes- mismatch df contains 31 obs, all negative future, all with scores of 3 / 6. What happened??</p>
+<p>Went back to the excel sheet and checked the values. Those in the Coding_Summary sheet are calculated from references in the Detail Analysis sheet. For Negative future the cell reference is off, so that it is adding together one column with values and one column that doesn’t have any values.</p>
+<p>Excel strikes AGAIN!!</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1143,27 +1308,27 @@ other attached packages:
 [13] ggplot2_3.3.2    tidyverse_1.3.0  workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.5             lubridate_1.7.4        assertthat_0.2.1      
- [4] rprojroot_1.3-2        digest_0.6.25          R6_2.4.1              
- [7] cellranger_1.1.0       backports_1.1.8        reprex_0.3.0          
-[10] evaluate_0.14          httr_1.4.1             pillar_1.4.6          
-[13] rlang_0.4.7            readxl_1.3.1           rstudioapi_0.11.0-9000
-[16] whisker_0.4            blob_1.2.1             rmarkdown_1.15        
-[19] labeling_0.3           munsell_0.5.0          broom_0.7.0           
-[22] compiler_3.5.1         httpuv_1.5.2           vipor_0.4.5           
-[25] modelr_0.1.8           xfun_0.8               pkgconfig_2.0.3       
-[28] htmltools_0.5.0        tidyselect_1.1.0       fansi_0.4.1           
-[31] crayon_1.3.4           dbplyr_1.4.4           withr_2.2.0           
-[34] later_1.1.0.1          grid_3.5.1             jsonlite_1.7.0        
-[37] gtable_0.3.0           lifecycle_0.2.0        DBI_1.0.0             
-[40] git2r_0.27.1           magrittr_1.5           scales_1.1.1          
-[43] cli_2.0.2              stringi_1.4.6          farver_2.0.3          
-[46] fs_1.4.1               promises_1.1.1         snakecase_0.9.2       
-[49] xml2_1.3.2             ellipsis_0.3.1         generics_0.0.2        
-[52] vctrs_0.3.2            RColorBrewer_1.1-2     tools_3.5.1           
-[55] glue_1.4.1             beeswarm_0.2.3         hms_0.5.3             
-[58] yaml_2.2.1             colorspace_1.4-1       rvest_0.3.6           
-[61] knitr_1.23             haven_2.3.1           </code></pre>
+ [1] Rcpp_1.0.5             lubridate_1.7.4        utf8_1.1.4            
+ [4] assertthat_0.2.1       rprojroot_1.3-2        digest_0.6.25         
+ [7] R6_2.4.1               cellranger_1.1.0       backports_1.1.8       
+[10] reprex_0.3.0           evaluate_0.14          httr_1.4.1            
+[13] pillar_1.4.6           rlang_0.4.7            readxl_1.3.1          
+[16] rstudioapi_0.11.0-9000 whisker_0.4            blob_1.2.1            
+[19] rmarkdown_1.15         labeling_0.3           munsell_0.5.0         
+[22] broom_0.7.0            compiler_3.5.1         httpuv_1.5.2          
+[25] vipor_0.4.5            modelr_0.1.8           xfun_0.8              
+[28] pkgconfig_2.0.3        htmltools_0.5.0        tidyselect_1.1.0      
+[31] fansi_0.4.1            crayon_1.3.4           dbplyr_1.4.4          
+[34] withr_2.2.0            later_1.1.0.1          grid_3.5.1            
+[37] jsonlite_1.7.0         gtable_0.3.0           lifecycle_0.2.0       
+[40] DBI_1.0.0              git2r_0.27.1           magrittr_1.5          
+[43] scales_1.1.1           cli_2.0.2              stringi_1.4.6         
+[46] farver_2.0.3           fs_1.4.1               promises_1.1.1        
+[49] snakecase_0.9.2        xml2_1.3.2             ellipsis_0.3.1        
+[52] generics_0.0.2         vctrs_0.3.2            RColorBrewer_1.1-2    
+[55] tools_3.5.1            glue_1.4.1             beeswarm_0.2.3        
+[58] hms_0.5.3              yaml_2.2.1             colorspace_1.4-1      
+[61] rvest_0.3.6            knitr_1.23             haven_2.3.1           </code></pre>
 </div>
 </div>
 
