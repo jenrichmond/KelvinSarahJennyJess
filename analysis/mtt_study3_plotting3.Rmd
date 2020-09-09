@@ -1,0 +1,178 @@
+---
+title: "phenomological rating plots"
+author: "Jen Richmond"
+date: "09/09/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load packages
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(here)
+library(ggeasy)
+```
+
+# read in data
+```{r message=FALSE, warning=FALSE}
+phenom <- read_csv(here("data", "study3_phenom.csv"))
+```
+
+Filter only pp who are good, fix data types
+```{r}
+
+phenom_complete <- phenom %>%
+  filter(identifier == "Good")  %>%
+  arrange(px_no, valence, direction, event)
+
+
+phenom_complete <- phenom_complete %>%
+  mutate_if(is.character, as.factor)
+
+phenom_complete$valence <- fct_relevel(phenom_complete$valence, 
+                    c("positive", "neutral", "negative"))
+
+phenom_complete$group <- fct_relevel(phenom_complete$group, 
+                                       c("CON", "ANX"))
+
+phenom_complete$direction <- fct_relevel(phenom_complete$direction, 
+                                       c("past", "future"))
+
+```
+
+# Plots
+
+Just a few pertinent ones...
+
+# VIVIDNESS 
+```{r}
+phenom_complete %>%
+  filter(rating == "vivid") %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated vividness")
+```
+
+
+# INTENSITY
+```{r}
+phenom_complete %>%
+  filter(rating == "intensity") %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+ facet_grid(vars(group), vars(direction)) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated intensity")
+```
+
+
+# COHERENCE
+```{r}
+phenom_complete %>%
+  filter(rating == "coh") %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated coherence")
+```
+
+
+```{r}
+phenom_complete %>%
+  filter(rating == "coh") %>%
+  group_by(group) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated coherence", subtitle = "people with anxiety rate events as more (not less) coherent")
+```
+
+# IMPORTANCE
+```{r}
+phenom_complete %>%
+  filter(rating == "impt") %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 6) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated importance")
+
+```
+
+group x direction interaction 
+```{r}
+
+phenom_complete %>%
+  filter(rating == "impt") %>%
+  group_by(group, direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = group, y = mean, fill = direction)) +
+  geom_col(position = "dodge") +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0,6) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated importance", subtitle = "people with anxiety rate future events as more important")
+
+
+```

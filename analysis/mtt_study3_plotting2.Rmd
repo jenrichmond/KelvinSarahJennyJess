@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+# SPECIFICITY
+
 # load packages
 
 ```{r loadpackages, message=FALSE, warning=FALSE}
@@ -25,7 +28,6 @@ library(ggbeeswarm)
 mtt_long <- read_csv(here("data", "study3_clean_mtt.csv"))
 ```
 
-# SPECIFICITY
 
 Each participant was asked to talk about 2 events in each condition category
 
@@ -42,10 +44,20 @@ Filter out events that weren't coded as specific.
 
 ```{r getspecifictyscores, message=FALSE, warning=FALSE}
 specificity <- mtt_long %>%
-  filter(code == 3)
+  filter(code == 3) %>%
+  mutate(valence = recode(valence, "pos" = "positive",
+                          "neutral" = "neutral",
+                          "neg" = "negative",
+                        .default = "NA")) %>%
+  arrange(px_no, valence, direction, event)
 
 #fix order of group factor
 specificity$group <- fct_relevel(specificity$group, c("CON", "ANX"))
+
+specificity$valence <- fct_relevel(specificity$valence, c("positive", "neutral", "negative"))
+
+specificity$direction <- fct_relevel(specificity$direction, c("past", "future"))
+
                                                      
 ```
 
@@ -53,7 +65,7 @@ specificity$group <- fct_relevel(specificity$group, c("CON", "ANX"))
 
 The original analysis looked at proportion internal by direction (past/future), valence (pos, neutral, neg), group (anx, con), finding only a main effect of group.  
 
-### 1. Main effect of group 
+### Main effect of group 
 
 ```{r overgendirection, message=FALSE, warning=FALSE}
 specificity %>%
@@ -73,3 +85,25 @@ specificity %>%
   labs(title = "Proportion internal by group", subtitle = "averaged across valence and direction")
 ```
 
+# Playing with effect of group/valence by group
+
+```{r}
+spec_summary <- specificity %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(proportion, na.rm = TRUE), 
+            sd = sd(proportion, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n))
+
+spec_summary %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9))  +
+  scale_fill_brewer(palette="Dark2") +
+ facet_grid(vars(group), vars(direction))
+```
+
+Is there anything going on here? Maybe a tiny bit more variability across valence in the anx group relative to controls...

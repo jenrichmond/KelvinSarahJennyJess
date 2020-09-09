@@ -1,0 +1,144 @@
+---
+title: "MTT_study3_cleaning"
+author: "Jen Richmond"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This Rmd file reads in, cleans up and write to csv categorical coding and specificity data for the MTT project. 
+
+# load packages
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse) # data wrangling/visualisation
+library(here) # for avoiding filepath drama
+library(readxl) # for reading excel sheets
+library(janitor) # for cleaning functions
+library(naniar) # visualising missing data
+library(wesanderson) #colour palettes
+library(ggbeeswarm)
+```
+
+# read data
+
+The R compatible version of the raw data lives in the xls sheet called Detail_Analysis_R within the sheet called Study3_MTT_Clinical_group. Use readxl to read in just that sheet
+
+```{r}
+mtt <- readxl::read_excel(here("data", "Study 3_MTT_Clinical Group_ Data (65 or under).xlsx"), sheet = "Detail_Analysis_R") %>%
+  clean_names() 
+
+table(mtt$group, mtt$identifier)
+
+# filter only pp who 
+mtt_complete <- mtt %>%
+  filter(identifier == "Good")
+
+```
+
+
+# clean data
+
+### make it long
+
+```{r}
+# list variable names
+names(mtt_complete)
+
+# make long to get columns for direction, valence, event etc 
+mtt_longest <- mtt_complete %>%
+  pivot_longer(names_to = c("direction", "valence", "event", "measure"), 
+               values_to = "response", 
+               names_sep = "_", future_neutral_e1_code:future_neg_e2_proportion) %>%
+  mutate(id = row_number())
+
+# make wide to have dvs in different columns, will throw a warning about duplicates /list
+mtt_long <- mtt_longest %>%
+  pivot_wider(names_from = measure, values_from = response, id_cols = px_no:event) %>%
+  arrange(px_no, direction, valence, event)
+
+
+```
+
+notes: 
+
+- pp_no problems, there are two pp1021, renamed in excel as 1021J and 1021S
+
+### fix list issue (NO LONGER AN ISSUE)
+
+Trying to work out why variables code through proportion are lists.  
+
+Ahhh this whole list issue was caused by duplicated participant numbers. The chunk below is probably not needed anymore
+```{r}
+mtt_long_df <- as.data.frame(mtt_long)
+
+glimpse(mtt_long_df) # so weird that code:proportion are list type, ridiculous work around required because I don't really GET lists
+
+```
+
+
+```{r eval = FALSE}
+# pull code, internal, external, and proportion into values in the environment using unlist
+
+codes <- unlist(mtt_long$code) # weird that this has 516 obs not 504
+internal <- unlist(mtt_long$internal)
+external <- unlist(mtt_long$external)
+proportion <- unlist(mtt_long$proportion)
+
+# use col bind to join them and then make into a data frame
+values <- cbind(codes, internal, external, proportion)
+values <- as.data.frame(values) 
+
+#drop the extra empty rows at the bottom to get 504 obs again
+
+mtt_values <- values[-c(505:516), ] 
+
+# select just the variables from the mtt_df
+mtt_variables <- mtt_long_df %>%
+  select(1:6)
+
+#join the mtt variables and values using cbind
+
+mtt_done <- cbind(mtt_variables, mtt_values)
+
+#did that fix the data type issue?
+
+glimpse(mtt_done)
+
+# YES
+```
+
+### check proportion calc
+
+The proportions were calculated in excel, lets just make sure they are correct by making a new variable called prop, and comparing it to the imported proportion variable
+
+```{r}
+mtt_check <- mtt_long %>%
+  mutate(prop = internal/(internal + external)) %>%
+  mutate(check = if_else(prop == proportion, TRUE, FALSE))
+
+# check missingness
+
+vis_miss(mtt_long)
+
+```
+That looks ok, only a few NAs in the code column, more in the int/ext/prop columns because those will be NA if code is not = 3. 
+
+### write cleaned to csv
+
+```{r}
+mtt_long %>%
+  write_csv(here("data", "study3_clean_mtt.csv"))
+```
+
+
+
+
+
+
+
+
+

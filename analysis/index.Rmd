@@ -30,6 +30,10 @@ plots dummy scores
 2. [Specificity plots-work in progress](mtt_study3_plotting2.html)
 - just includes main effect group plot thus far, need to dig into direction/valence/group
 
+3. [Phenomenological ratings plots- work in progress](mtt_study3_plotting3.html)
+- includes plots for a few key phenom variables, need to check with Sarah which ones were analysed
+- also need to check why there are two phemon variables for  sensory, context and perspective and what to do with them in analysis. 
+
 
 
 # Analysis
