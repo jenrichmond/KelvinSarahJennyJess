@@ -17,6 +17,7 @@ library(janitor)
 library(ggeasy)
 library(here)
 library(ggbeeswarm)
+library(patchwork)
 ```
 
 # read data
@@ -93,7 +94,7 @@ In the original plots, negative events had much lower scores, which probably was
 
 Need to work out why this effect is not  replicated here.....  
 ```{r overgenvalence, message=FALSE, warning=FALSE}
-overgen %>%
+valenceplot1 <- overgen %>%
   group_by(valence) %>%
   summarise(mean = mean(dummy_total, na.rm = TRUE), 
             sd = sd(dummy_total, na.rm = TRUE), 
@@ -106,7 +107,9 @@ overgen %>%
                     width=.2,
                       position=position_dodge(.9)) +
   scale_fill_brewer(palette="Dark2") +
-  labs(title = "Overgen score by valence", subtitle = "averaged across direction and group")
+  labs(title = "Overgen score by valence", subtitle = "averaged across direction and group", caption = "data read from Detail Analysis sheet")
+
+print(valenceplot1)
 ```
 
 ## Playing with by group plots
@@ -178,3 +181,93 @@ overgen %>%
 1. need to check that I am using the same data that was in Sarah's draft. The mean overgen scores for negative events are really different; effect of valence reported probably not there
 2. what to do about the distribution of overgen scores here. Not at all normally distributed, most participants have scores of 5 or 6. What analysis methods do other papers use? Are they dealing with a greater range of scores? 
 
+# Next steps
+
+### working out data difference
+
+The above constructs dummy scores from the Detail_Analysis sheet in the excel file. In that same file, there is a sheet called Coding_Summary, that sums scores from the Detail Analysis sheet to produce dummary scores. Lets import that sheet directly and see if we can replicate the plot in the draft.  
+
+### read coding data
+```{r}
+coding <- readxl::read_excel(here("data", "Study 3_MTT_Clinical Group_ Data (65 or under).xlsx"), sheet = "Coding_Summary_R") %>%
+  clean_names() %>%
+  select(1:9)
+```
+
+OK reassuring that we have 43 observations, which is the same as the original mtt dataframe that we read in the mtt_study3_cleaning.Rmd. 
+
+So the dummy scores are in separate columns for each condition
+
+- cat_past_neu
+- cat_past_neg
+- cat_past_pos
+- cat_future_neu
+- cat_future_neg
+- cat_future_pos
+
+Need to make a column that has direction (past, future), one for valence (neu, neg, pos) and one for score
+
+### rename variables
+
+Need to rename these variables consistently to make pivot_longer work
+```{r}
+coding <- coding %>%
+  rename(past_neutral = cat_past_neutral, past_negative = cat_past_neg, past_positive = cat_past_po, future_neutral = cat_fut_neu, future_negative = cat_fut_neg, future_positive = cat_fut_pos)
+
+```
+
+### make it long
+```{r}
+coding_long <- coding %>%
+  pivot_longer(names_to = c("direction", "valence"), 
+               values_to = "score", 
+               names_sep = "_", 
+               past_neutral:future_positive)
+```
+
+### make df just complete
+
+```{r}
+coding_long_complete <- coding_long %>%
+  filter(identifier == "Good")
+
+coding_long_complete$valence <- fct_relevel(coding_long_complete$valence, c("positive", "neutral", "negative"))
+```
+
+Good sign= the coding_long_complete df has 204 obs which is the same as the overgen df created above. 
+
+### Lets plot!
+
+It was the main effect of valence plot that looked different.
+
+#### valence plot take 2
+```{r}
+valenceplot2 <- coding_long_complete %>%
+  group_by(valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Coding score by valence", subtitle = "averaged across direction and group", caption = "data read from Coding Summary sheet")
+
+print(valenceplot2)
+  
+```
+
+OK that looks quite different to the valence plot from above (but more similar to the plot in the manscript draft).... what is going on?
+
+```{r}
+
+valenceplot1 + valenceplot2
+```
+
+# What next?
+
+Both the overgen df (from the Detail Analysis sheet) and the coding_long_complete df (from the Coding Summary sheet) have 204 obs. Need to find a package that will compare two dataframes and tell me which values are different. 
