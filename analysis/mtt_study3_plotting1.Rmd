@@ -44,7 +44,7 @@ The dummy coding involved adding these codes together for each condition combina
 
 ```{r getdummyscores, message=FALSE, warning=FALSE}
 event_scores <- mtt_long %>%
-  group_by(group, direction, valence) %>%  # for each combination of direction/valence
+  group_by(identifier, group, direction, valence) %>%  # for each combination of direction/valence
   count(px_no, code)  
 
 # new column calc dummy score
@@ -55,11 +55,16 @@ dummy_scores <- event_scores %>%
 # for each pp, direction, valence, add the total dummy score together
 
 overgen <- dummy_scores %>%
-  group_by(px_no, group, direction, valence) %>%
-  summarise(dummy_total = sum(dummy_score)) 
+  group_by(px_no, identifier, group, direction, valence) %>%
+  summarise(dummy_total = sum(dummy_score))  %>%
+  mutate(valence = recode(valence, "pos" = "positive",
+                          "neutral" = "neutral",
+                          "neg" = "negative",
+                        .default = "NA"))
 
 # fix order of pos, neutral, neg factor
-overgen$valence <- fct_relevel(overgen$valence, c("pos", "neutral", "neg"))
+
+overgen$valence <- fct_relevel(overgen$valence, c("positive", "neutral", "negative"))
 
 overgen$direction <- fct_relevel(overgen$direction, c("past", "future"))
 ```
@@ -181,9 +186,8 @@ overgen %>%
 1. need to check that I am using the same data that was in Sarah's draft. The mean overgen scores for negative events are really different; effect of valence reported probably not there
 2. what to do about the distribution of overgen scores here. Not at all normally distributed, most participants have scores of 5 or 6. What analysis methods do other papers use? Are they dealing with a greater range of scores? 
 
-# Next steps
+# Next steps: data difference problem
 
-### working out data difference
 
 The above constructs dummy scores from the Detail_Analysis sheet in the excel file. In that same file, there is a sheet called Coding_Summary, that sums scores from the Detail Analysis sheet to produce dummary scores. Lets import that sheet directly and see if we can replicate the plot in the draft.  
 
@@ -263,11 +267,62 @@ print(valenceplot2)
 
 OK that looks quite different to the valence plot from above (but more similar to the plot in the manscript draft).... what is going on?
 
+
+
 ```{r}
 
 valenceplot1 + valenceplot2
 ```
 
-# What next?
+Looks like mean for negative is REALLY different but means for positive and neutral aren't exactly the same either
+
+### Get summary stats
+
+#### overgen summary stats
+```{r}
+overgen %>%
+  group_by(valence) %>%
+  summarise(mean = mean(dummy_total, na.rm = TRUE), 
+            sd = sd(dummy_total, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n))
+```
+
+#### coding summary stats
+
+```{r}
+coding_long_complete %>%
+  group_by(valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) 
+```
+
+Hmmmm means for neutral is the same, but means for both positive and neutral are different.....
+
+
+# What happened?? 
 
 Both the overgen df (from the Detail Analysis sheet) and the coding_long_complete df (from the Coding Summary sheet) have 204 obs. Need to find a package that will compare two dataframes and tell me which values are different. 
+
+Maybe dplyr joins will do this, if I just join the coding_long_complete to the overgen df, will it show me which values are different??
+
+```{r}
+join <- right_join(coding_long_complete, overgen, 
+                   by = c("px_no", "identifier", "group", "direction", "valence")) %>%
+  mutate(match = if_else(score == dummy_total, "TRUE", "FALSE")) %>%
+  arrange(px_no, direction, valence)
+```
+
+```{r}
+mismatch <- join %>%
+  filter(match == FALSE)
+```
+
+Yikes- mismatch df contains 31 obs,  all negative future, all with scores of 3 / 6. What happened??
+
+Went back to the excel sheet and checked the values. Those in the Coding_Summary sheet are calculated from references in the Detail Analysis sheet. For Negative future the cell reference is off, so that it is adding together one column with values and one column that doesn't have any values. 
+
+Excel strikes AGAIN!!
+
