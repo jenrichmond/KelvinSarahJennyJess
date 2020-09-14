@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Overgenerality and Specificity data
+
 This Rmd file reads in, cleans up and write to csv categorical coding and specificity data for the MTT project. 
 
 # load packages

@@ -1,9 +1,49 @@
-# functions
+---
+title: "MTT_study3_cleaning2"
+author: "Jen Richmond"
+date: ""
+output: html_document
+---
 
-# this function renames 185 phenomenological variables to make them compatible with pivot_longer()
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-rename_phenom <-function(data) {
-  dplyr::rename(past_neutral_e1_text = past_neutral_6, 
+# Phenomenological Data
+
+This Rmd file reads in, cleans up and write to csv phenomenological data for the MTT project. 
+
+# load packages
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse) # data wrangling/visualisation
+library(here) # for avoiding filepath drama
+library(readxl) # for reading excel sheets
+library(janitor) # for cleaning functions
+library(naniar) # visualising missing data
+library(wesanderson) #colour palettes
+library(ggbeeswarm)
+
+
+```
+
+# read data
+
+The R compatible version of the raw phenomological data lives in the xls sheet called all_clinical_data_Phenon_R within the sheet called Study3_MTT_Clinical_group. Use readxl to read in just that sheet
+
+```{r}
+phenom <- readxl::read_excel(here("data", "Study 3_MTT_Clinical Group_ Data (65 or under).xlsx"), sheet = "all_clinical_data_Phenom_R") %>%
+  clean_names() 
+
+```
+
+# renaming
+
+This is stupidly long code that renames all 185 variables to make the naming conventions consistent so that it will work with pivot_longer. 
+
+```{r}
+phenom_renamed <- phenom %>%
+  rename(past_neutral_e1_text = past_neutral_6, 
          past_neutral_e1_vivid = vivid_7, 
          past_neutral_e1_prere = pre_re_8, 
          past_neutral_e1_sense1 = sense_9, 
@@ -33,7 +73,7 @@ rename_phenom <-function(data) {
          past_neutral_e2_impt = importance_33,
          past_neutral_e2_coh = coherence_34, 
          past_neutral_e2_temp = temporal_35,
-         past_negative_e1_text = past_negative_36, 
+        past_negative_e1_text = past_negative_36, 
          past_negative_e1_vivid = vivid_37, 
          past_negative_e1_prere = pre_re_38, 
          past_negative_e1_sense1 = sense_39, 
@@ -63,7 +103,7 @@ rename_phenom <-function(data) {
          past_negative_e2_impt = importance_63,
          past_negative_e2_coh = coherence_64, 
          past_negative_e2_temp = temporal_65, 
-         past_positive_e1_text = past_positive_66, 
+        past_positive_e1_text = past_positive_66, 
          past_positive_e1_vivid = vivid_67, 
          past_positive_e1_prere = pre_re_68, 
          past_positive_e1_sense1 = sense_69, 
@@ -93,7 +133,7 @@ rename_phenom <-function(data) {
          past_positive_e2_impt = importance_93,
          past_positive_e2_coh = coherence_94, 
          past_positive_e2_temp = temporal_95, 
-         future_neutral_e1_text = future_neutral_96, 
+        future_neutral_e1_text = future_neutral_96, 
          future_neutral_e1_vivid = vivid_97, 
          future_neutral_e1_prere = pre_re_98, 
          future_neutral_e1_sense1 = sense_99, 
@@ -123,7 +163,7 @@ rename_phenom <-function(data) {
          future_neutral_e2_impt = importance_123,
          future_neutral_e2_coh = coherence_124, 
          future_neutral_e2_temp = temporal_125, 
-         future_negative_e1_text = future_negative_126, 
+        future_negative_e1_text = future_negative_126, 
          future_negative_e1_vivid = vivid_127, 
          future_negative_e1_prere = pre_re_128, 
          future_negative_e1_sense1 = sense_129, 
@@ -153,7 +193,7 @@ rename_phenom <-function(data) {
          future_negative_e2_impt = importance_153,
          future_negative_e2_coh = coherence_154, 
          future_negative_e2_temp = temporal_155, 
-         future_positive_e1_text = future_positive, 
+        future_positive_e1_text = future_positive, 
          future_positive_e1_vivid = vivid_157, 
          future_positive_e1_prere = pre_re_158, 
          future_positive_e1_sense1 = sense_159, 
@@ -183,5 +223,50 @@ rename_phenom <-function(data) {
          future_positive_e2_impt = importance_183,
          future_positive_e2_coh = coherence_184, 
          future_positive_e2_temp = temporal_185)
+```
+
+separate text from ratings
+
+```{r}
+event_text <- phenom_renamed %>%
+  select(1:5, ends_with("text")) 
+
+  event_text %>% write_csv(here("data", "study3_event_text.csv"))
+
+phenom_ratings <- phenom_renamed %>%
+  select(1:5, !ends_with("text"))
+
+```
+
+# make ratings long
+```{r}
+phenom_long <- phenom_ratings %>%
+  pivot_longer(names_to = c("direction", "valence", "event", "rating"), 
+               values_to = "score", 
+               names_sep = "_", 
+               6:173)
+
+phenom_long %>% write_csv(here("data", "study3_phenom.csv"))
+```
+
+# Details re phenom analysis
+
+- vividness
+- pre/re-experiencing
+- sensory details
+  + individual sensory items (sight, sound, smell, taste) averaged into single sensoty detail rating for each event
+- contextual details
+  + ratings of clarity of location and clarity of spatial arrangement of objects averaged into combined contextual details rating for each event
+- perspective
+  + ratio calculated by dividing rating for "seen through my own eyes" and "as if I was a fly on the wall" to determine field or observer perspective. Higher ratios indicate field perspecitve; lower ratios field perspective
+- reaction
+  + combined reaction score calculated by averaging intensity and physical reactions
+- coherence
+- importance
   
-}
+All phenomenological ratings averaged across event type (i.e. future neutral, future positive)
+
+
+
+
+

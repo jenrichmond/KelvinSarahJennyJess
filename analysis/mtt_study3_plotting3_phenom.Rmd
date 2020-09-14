@@ -43,9 +43,25 @@ phenom_complete$direction <- fct_relevel(phenom_complete$direction,
 
 ```
 
-# Plots
 
-Just a few pertinent ones...
+# Phenomolgical variables
+
+- vividness
+- pre/re-experiencing
+- sensory details
+  + individual sensory items (sight, sound, smell, taste) averaged into single sensoty detail rating for each event
+- contextual details
+  + ratings of clarity of location and clarity of spatial arrangement of objects averaged into combined contextual details rating for each event
+- perspective
+  + ratio calculated by dividing rating for "seen through my own eyes" and "as if I was a fly on the wall" to determine field or observer perspective. Higher ratios indicate field perspecitve; lower ratios field perspective
+- reaction
+  + combined reaction score calculated by averaging intensity and physical reactions
+- coherence
+- importance
+  
+All phenomenological ratings averaged across event type (i.e. future neutral, future positive)
+
+# Plots
 
 # VIVIDNESS 
 ```{r}
@@ -68,11 +84,109 @@ phenom_complete %>%
   labs(title = "Rated vividness")
 ```
 
-
-# INTENSITY
+# PRE-RE experiencing
 ```{r}
 phenom_complete %>%
-  filter(rating == "intensity") %>%
+  filter(rating == "prere") %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated pre/re experiencing")
+```
+
+# SENSORY
+```{r}
+phenom_complete %>%
+  filter(rating %in% c("sense1", "sense2")) %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated sensory")
+```
+
+# CONTEXT
+```{r}
+phenom_complete %>%
+  filter(rating %in% c("context1", "context2")) %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated context")
+```
+
+# PERSPECTIVE
+```{r}
+phenom_complete %>%
+  filter(rating == "ratio") %>%
+  group_by(group, direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated perspective ratio", subtitle = "ratios above 1 mean that event was seen more through own eyes than as fly on wall", caption = "higher = field perspective, lower = observer perspective")
+```
+
+Check calculations on perspective ratio
+
+```{r}
+perspective <- phenom_complete %>%
+  filter(rating %in% c("perspective1", "perspective2", "ratio"))
+
+persp_wide <- perspective %>%
+  pivot_wider(names_from = rating, 
+              values_from = score) %>%
+  mutate(ratio_test = perspective1/perspective2)
+```
+
+Yup calculation seems fine. 
+
+# REACTION
+
+```{r}
+phenom_complete %>%
+  filter(rating == "reaction") %>%
   group_by(group, direction, valence) %>%
   summarise(mean = mean(score, na.rm = TRUE), 
             sd = sd(score, na.rm = TRUE), 
@@ -84,14 +198,15 @@ phenom_complete %>%
                   size=.3,    # Thinner lines
                     width=.2,
                       position=position_dodge(.9)) +
-  ylim(0, 7) +
  facet_grid(vars(group), vars(direction)) +
+  ylim(0, 7) +
   scale_fill_brewer(palette="Dark2") +
-  labs(title = "Rated intensity")
+  labs(title = "Rated reaction (intensity + physical reaction")
 ```
 
-
 # COHERENCE
+
+### group x direction x valence
 ```{r}
 phenom_complete %>%
   filter(rating == "coh") %>%
@@ -112,7 +227,7 @@ phenom_complete %>%
   labs(title = "Rated coherence")
 ```
 
-
+### just group effect
 ```{r}
 phenom_complete %>%
   filter(rating == "coh") %>%
@@ -133,6 +248,8 @@ phenom_complete %>%
 ```
 
 # IMPORTANCE
+
+### group x direction x valence
 ```{r}
 phenom_complete %>%
   filter(rating == "impt") %>%
