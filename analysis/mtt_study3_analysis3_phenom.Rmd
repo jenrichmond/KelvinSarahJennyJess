@@ -1,0 +1,413 @@
+---
+title: "phenom anovas"
+author: "Jen Richmond"
+date: "09/09/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load packages
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(here)
+library(afex)
+```
+
+> NOTES re how to do repeated measures ANOVA In R here 
+http://jenrichmond.rbind.io/post/anova-options/
+
+# read in data
+```{r message=FALSE, warning=FALSE}
+phenom <- read_csv(here("data", "study3_phenom.csv"))
+```
+
+Filter only pp who are good, fix data types
+```{r}
+
+phenom_complete <- phenom %>%
+  filter(identifier == "Good")  %>%
+  arrange(px_no, valence, direction, event)
+
+
+phenom_complete <- phenom_complete %>%
+  mutate_if(is.character, as.factor)
+
+phenom_complete$px_no <- as.factor(phenom_complete$px_no)
+
+phenom_complete$valence <- fct_relevel(phenom_complete$valence, 
+                    c("positive", "neutral", "negative"))
+
+phenom_complete$group <- fct_relevel(phenom_complete$group, 
+                                       c("CON", "ANX"))
+
+phenom_complete$direction <- fct_relevel(phenom_complete$direction, 
+                                       c("past", "future"))
+
+```
+
+
+# Phenom variables
+
+- vividness
+- pre/re-experiencing
+- sensory details
+  + individual sensory items (sight, sound, smell, taste) averaged into single sensoty detail rating for each event
+- contextual details
+  + ratings of clarity of location and clarity of spatial arrangement of objects averaged into combined contextual details rating for each event
+- perspective
+  + ratio calculated by dividing rating for "seen through my own eyes" and "as if I was a fly on the wall" to determine field or observer perspective. Higher ratios indicate field perspecitve; lower ratios field perspective
+- reaction
+  + combined reaction score calculated by averaging intensity and physical reactions
+- coherence
+- importance
+  
+All phenomenological ratings averaged across event type (i.e. future neutral, future positive)
+
+Each rating is analysed using repeated measures ANOVA with effects of direction (past, future), valence (pos, neu, neg) and group (control, anxiety). Here I will replicate the original analysis first using the `afex` package. 
+
+> afex1 <- aov_ez("px_no", "score", 
+                data_long, 
+                between = "group", 
+                within = c("direction", "valence"))
+                
+Then try linear mixed models which will allow us to deal with the missing data problem, and add random intercepts for both participant and event, along with random slopes for main effects. 
+
+Thought- in the original analysis, did we differentiate between events that were specific vs. not? 
+
+
+
+# VIVIDNESS 
+
+Main effect of direction, no effects involving valence or group. 
+```{r}
+vivid_data <- phenom_complete %>%
+  filter(rating == "vivid") 
+
+vivid_aov <- afex::aov_ez("px_no", "score", 
+                vivid_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(vivid_aov)
+```
+
+### Plot main effect of direction
+``` {r}
+phenom_complete %>%
+  filter(rating == "vivid") %>%
+  group_by(direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated vividness: main effect of direction", subtitle = "Participants rate past events as more vivid than future events")
+```
+
+# PRE-RE experiencing
+
+Main effect of direction, no effects involving valence or group.
+```{r}
+prere_data <- phenom_complete %>%
+  filter(rating == "prere") 
+
+prere_aov <- afex::aov_ez("px_no", "score", 
+                prere_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(prere_aov)
+
+```
+
+### Plot main effect of direction
+```{r}
+phenom_complete %>%
+  filter(rating == "prere") %>%
+  group_by(direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated pre/re experiencing: main effect of direction", subtitle = "Participants report a greater sense of reexp for past than preexp for future events")
+```
+
+# SENSORY
+
+Main effect of direction, no effects involving valence or group.
+```{r}
+sensory_data <- phenom_complete %>%
+  filter(rating %in% c("sense1", "sense2")) %>%
+  group_by(px_no, group, direction, valence) %>%
+  summarise(score = mean(score))
+
+sensory_aov <- afex::aov_ez("px_no", "score", 
+                sensory_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(sensory_aov)
+
+
+```
+
+### Plot main effect of direction
+```{r}
+
+phenom_complete %>%
+  filter(rating %in% c("sense1", "sense2")) %>%
+  group_by(direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated sensory: main effect of direction", subtitle = "Participants rated past events as having higher sensory details than future events")
+```
+
+# CONTEXT
+
+Main effect of direction, no effects involving valence or group.
+```{r}
+context_data <- phenom_complete %>%
+  filter(rating %in% c("context1", "context2")) %>%
+  group_by(px_no, group, direction, valence) %>%
+  summarise(score = mean(score))
+
+context_aov <- afex::aov_ez("px_no", "score", 
+                context_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(context_aov)
+
+```
+
+
+### plot main effect of direction
+```{r}
+
+phenom_complete %>%
+  filter(rating %in% c("context1", "context2")) %>%
+  group_by(direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+ geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated context: main effect of direction", subtitle = "Participants rated past events with more contextual detail than future events")
+```
+
+# PERSPECTIVE
+
+No main effects or interactions. 
+```{r}
+
+perspective_data <- phenom_complete %>%
+  filter(rating == "ratio") 
+
+perspective_aov <- afex::aov_ez("px_no", "score", 
+                perspective_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(perspective_aov)
+
+naniar::vis_miss(perspective_data) # why are some pp missing ratio scores
+
+```
+
+
+
+Check calculations on perspective ratio
+
+```{r}
+perspective <- phenom_complete %>%
+  filter(rating %in% c("perspective1", "perspective2", "ratio"))
+
+persp_wide <- perspective %>%
+  pivot_wider(names_from = rating, 
+              values_from = score) %>%
+  mutate(ratio_test = perspective1/perspective2)
+```
+
+Yup calculation seems fine. 
+
+# REACTION
+
+Main effect of direction, valence, and direction x valence interaction. No effects involving group. 
+
+```{r}
+reaction_data <- phenom_complete %>%
+  filter(rating == "reaction") 
+
+reaction_aov <- afex::aov_ez("px_no", "score", 
+                reaction_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(reaction_aov)
+
+```
+
+### Plot valence x direction
+```{r}
+
+phenom_complete %>%
+  filter(rating == "reaction") %>%
+  group_by(direction, valence) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = valence, y = mean, fill = valence)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+ facet_wrap(~ direction) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated reaction (intensity + physical reaction): direction x valence", subtitle = "negative past events more intense than pos/neu, maybe no difference for future?")
+```
+
+# COHERENCE
+
+Main effect of group and main effect of direction. No interaction.
+
+```{r}
+
+coh_data <- phenom_complete %>%
+  filter(rating == "coh") 
+
+coh_aov <- afex::aov_ez("px_no", "score", 
+                coh_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(coh_aov)
+```
+
+### Plot main effect of group
+```{r}
+
+phenom_complete %>%
+  filter(rating == "coh") %>%
+  group_by(group) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated coherence: main effect of group", subtitle = "people with anxiety rate events as MORE coherent than controls")
+
+```
+
+### Plot main effect of direction
+
+```{r}
+phenom_complete %>%
+  filter(rating == "coh") %>%
+  group_by(direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 7) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated coherence: main effect of direction", subtitle = "past events rated as more coherent than future")
+```
+
+
+
+# IMPORTANCE
+
+Main effect of direction- I thought the original analysis showed that there was a group x direction interaction in that those with anxiety rated future events more important. 
+
+
+
+```{r}
+impt_data <- phenom_complete %>%
+  filter(rating == "impt")  
+
+
+impt_aov <- afex::aov_ez("px_no", "score", 
+                impt_data, 
+                between = "group", 
+                within = c("direction", "valence"))
+
+nice(impt_aov)
+
+```
+### plot main effect direction
+```{r}
+
+phenom_complete %>%
+  filter(rating == "impt") %>%
+  group_by(direction) %>%
+  summarise(mean = mean(score, na.rm = TRUE), 
+            sd = sd(score, na.rm = TRUE), 
+            n = n(), 
+            stderr = sd/sqrt(n)) %>%
+  ggplot(aes(x = direction, y = mean, fill = direction)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean-stderr, ymax=mean+stderr),
+                  size=.3,    # Thinner lines
+                    width=.2,
+                      position=position_dodge(.9)) +
+  ylim(0, 6) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "Rated importance: main effect direction", subtitle= "past events rated as more important")
+
+```
+
+# Issues to resolve
+- missing perspective ratio scores
+- importance ratings, group x direction??

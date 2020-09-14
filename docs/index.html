@@ -315,7 +315,7 @@ $(document).ready(function () {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -324,7 +324,7 @@ $(document).ready(function () {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -333,10 +333,10 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-09-09
+<strong>Last updated:</strong> 2020-09-14
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>KelvinSarahJennyJess/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -352,28 +352,28 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstreec3cee2fa9344f2f6aaa37c8a1f79f6dd325ba47ctargetblankc3cee2fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/c3cee2fa9344f2f6aaa37c8a1f79f6dd325ba47c" target="_blank">c3cee2f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree55f56f9c5cb00a730cf120edf2decdf4c8406441targetblank55f56f9a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/55f56f9c5cb00a730cf120edf2decdf4c8406441" target="_blank">55f56f9</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstreec3cee2fa9344f2f6aaa37c8a1f79f6dd325ba47ctargetblankc3cee2fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjenrichmondKelvinSarahJennyJesstree55f56f9c5cb00a730cf120edf2decdf4c8406441targetblank55f56f9a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/c3cee2fa9344f2f6aaa37c8a1f79f6dd325ba47c" target="_blank">c3cee2f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jenrichmond/KelvinSarahJennyJess/tree/55f56f9c5cb00a730cf120edf2decdf4c8406441" target="_blank">55f56f9</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -385,6 +385,12 @@ Ignored files:
     Ignored:    Manuscripts/
     Ignored:    OLDAnalysis/
     Ignored:    Prism & Graphs/
+
+Untracked files:
+    Untracked:  analysis/mtt_study3_analysis3_phenom.Rmd
+
+Unstaged changes:
+    Modified:   analysis/index.Rmd
 
 </code></pre>
 <p>
@@ -423,6 +429,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jenrichmond/KelvinSarahJennyJess/blob/57efb47687ee7a05770d14fdca28279cf4c9fe7b/analysis/index.Rmd" target="_blank">57efb47</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+update to do list
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jenrichmond/KelvinSarahJennyJess/824cbf03779dcda64866b7fd08447b7c4ba88cae/docs/index.html" target="_blank">824cbf0</a>
+</td>
+<td>
+Your Name
+</td>
+<td>
+2020-09-09
+</td>
+<td>
+update front page links
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -672,43 +712,56 @@ Start workflowr project.
 <div id="data-cleaning" class="section level1">
 <h1>Data cleaning</h1>
 <ol style="list-style-type: decimal">
-<li><a href="mtt_study3_cleaning.html">Get data in format for R</a></li>
+<li><a href="mtt_study3_cleaning1_overgen_specificity.html">Get overgen and specificity data in format for R</a></li>
 </ol>
 <ul>
 <li>This file reads the dummy and specificity data from excel, cleans it up, gets it into long format and exports to csv</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li><a href="mtt_study3_cleaning2_phenom.html">Get phenomological data in format for R</a></li>
+</ol>
+<ul>
+<li>This file reads the phenomological data from excel, cleans it up, gets it into long format and exports to csv</li>
 </ul>
 </div>
 <div id="plotting" class="section level1">
 <h1>Plotting</h1>
 <ol style="list-style-type: decimal">
-<li><a href="mtt_study3_plotting1.html">Overgenerality plots</a></li>
+<li><a href="mtt_study3_plotting1_overgen.html">Overgenerality plots</a></li>
 </ol>
 <ul>
-<li>This file tries to replicate the plots in the manuscript draft, i.e dummy scores by direction and valence. Noticing that we might not be plotting the same data- plot by valence looks like there is no effect (whereas in the original analysis there was).</li>
+<li>This file tries to replicate the plots in the manuscript draft, i.e dummy scores by direction and valence. Noticing that we might not be plotting the same data- plot by valence looks like there is no effect (whereas in the original analysis there was).
+<ul>
+<li>worked this out… error in summing across columns in excel file</li>
+</ul></li>
 <li>Also clear that the dummy scores are highly skewed; most participants have scores of 5 or 6 (out of 6). Not sure that repeated-measures ANOVA is a good option.</li>
 <li>TO DO….
 <ul>
-<li>check to make sure we are dealing with the same data plots dummy scores</li>
 <li>what do other papers do re analysing overgen scores, are they dealing with a larger range of possible scores?</li>
 <li>alternative to RM ANOVA?</li>
 </ul></li>
 </ul>
 <ol start="2" style="list-style-type: decimal">
-<li><a href="mtt_study3_plotting2.html">Specificity plots-work in progress</a></li>
+<li><a href="mtt_study3_plotting2_specificity.html">Specificity plots</a></li>
 </ol>
 <ul>
-<li>just includes main effect group plot thus far, need to dig into direction/valence/group</li>
+<li>includes main effect group plot and direction/valence/group</li>
 </ul>
 <ol start="3" style="list-style-type: decimal">
-<li><a href="mtt_study3_plotting3.html">Phenomenological ratings plots- work in progress</a></li>
+<li><a href="mtt_study3_plotting3_phenom.html">Phenomenological ratings plots</a></li>
 </ol>
 <ul>
-<li>includes plots for a few key phenom variables, need to check with Sarah which ones were analysed</li>
-<li>also need to check why there are two phemon variables for sensory, context and perspective and what to do with them in analysis.</li>
+<li>includes plots for all phenom variables</li>
 </ul>
 </div>
 <div id="analysis" class="section level1">
 <h1>Analysis</h1>
+<p>Next up analysis</p>
+<ol style="list-style-type: decimal">
+<li><p>overgen</p></li>
+<li><p>specificity</p></li>
+<li><p><a href="mtt_study3_analysis3_phenom.html">phenomological ratings</a></p></li>
+</ol>
 </div>
 
 

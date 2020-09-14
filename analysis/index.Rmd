@@ -12,13 +12,16 @@ This site documents analysis for the MTT anxiety project. You can find links to 
 
 # Data cleaning
 
-1. [Get data in format for R](mtt_study3_cleaning.html)
+1. [Get overgen and specificity data in format for R](mtt_study3_cleaning1_overgen_specificity.html)
 - This file reads the dummy and specificity data from excel, cleans it up, gets it into long format and exports to csv
+
+2. [Get phenomological data in format for R](mtt_study3_cleaning2_phenom.html)
+- This file reads the phenomological data from excel, cleans it up, gets it into long format and exports to csv
 
 
 # Plotting
 
-1.  [Overgenerality plots](mtt_study3_plotting1.html)
+1.  [Overgenerality plots](mtt_study3_plotting1_overgen.html)
 - This file tries to replicate the plots in the manuscript draft, i.e dummy scores by direction and valence. Noticing that we might not be plotting the same data- plot by valence looks like there is no effect (whereas in the original analysis there was). 
   + worked this out... error in summing across columns in excel file
 - Also clear that the dummy scores are highly skewed; most participants have scores of 5 or 6 (out of 6). Not sure that repeated-measures ANOVA is a good option. 
@@ -26,13 +29,22 @@ This site documents analysis for the MTT anxiety project. You can find links to 
   + what do other papers do re analysing overgen scores, are they dealing with a larger range of possible scores?
   + alternative to RM ANOVA?
 
-2. [Specificity plots-work in progress](mtt_study3_plotting2.html)
-- just includes main effect group plot thus far, need to dig into direction/valence/group
+2. [Specificity plots](mtt_study3_plotting2_specificity.html)
+- includes main effect group plot and direction/valence/group
 
-3. [Phenomenological ratings plots- work in progress](mtt_study3_plotting3.html)
-- includes plots for a few key phenom variables, need to check with Sarah which ones were analysed
-- also need to check why there are two phemon variables for  sensory, context and perspective and what to do with them in analysis. 
+3. [Phenomenological ratings plots](mtt_study3_plotting3_phenom.html)
+- includes plots for all phenom variables
 
 
 
 # Analysis
+
+Next up analysis
+
+1. overgen
+
+
+2. specificity
+
+
+3. [phenomological ratings](mtt_study3_analysis3_phenom.html)
